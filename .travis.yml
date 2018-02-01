@@ -1,0 +1,10 @@
+language: java
+jdk:
+  - oraclejdk8
+before_install:
+  gradle wrapper
+addons:
+  sonarcloud:
+    organization: ylinor-github
+script:
+  - ./gradlew sonarqube
