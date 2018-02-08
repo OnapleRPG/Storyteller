@@ -1,6 +1,8 @@
-package com.ylinor.storyteller.data.beans.dao;
+package com.ylinor.storyteller.data.access;
 
 import com.ylinor.storyteller.data.beans.DialogBean;
+import com.ylinor.storyteller.data.beans.PageBean;
+import org.spongepowered.api.entity.living.player.Player;
 
 import javax.inject.Singleton;
 import java.util.ArrayList;
@@ -18,10 +20,17 @@ public class DialogDao {
             return Optional.empty();
         }
     }
+
     public void addDialog(DialogBean dialogBean) {
+        dialogBean.setId(getIndex());
         dialogList.add(dialogBean);
         index ++;
     }
+
+    public Optional<DialogBean> getDialogByTrigger(String trigger){
+       return dialogList.stream().filter(dialogBean -> dialogBean.getTrigger().contains(trigger)).findFirst();
+    }
+
 
     public int getIndex(){
         return index;

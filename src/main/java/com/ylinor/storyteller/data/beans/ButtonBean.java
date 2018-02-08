@@ -1,5 +1,7 @@
 package com.ylinor.storyteller.data.beans;
 
+import com.ylinor.storyteller.data.ButtonBuilder;
+
 public class ButtonBean {
     private int id;
     private String text;
@@ -20,6 +22,17 @@ public class ButtonBean {
 
     public String getText() {
         return text;
+    }
+
+    public ButtonBean(String text, String color, ActionEnum action, String arg) {
+        this.text = text;
+        this.color = color;
+        this.action = action;
+        Arg = arg;
+    }
+
+    public static ButtonBuilder builder(){
+        return new ButtonBuilder();
     }
 
     public void setText(String text) {

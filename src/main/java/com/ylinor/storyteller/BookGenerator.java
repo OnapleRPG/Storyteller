@@ -3,10 +3,9 @@ package com.ylinor.storyteller;
 import com.ylinor.storyteller.data.beans.ButtonBean;
 import com.ylinor.storyteller.data.beans.DialogBean;
 import com.ylinor.storyteller.data.beans.PageBean;
-import com.ylinor.storyteller.data.beans.dao.DialogDao;
+import com.ylinor.storyteller.data.access.DialogDao;
 
 import org.spongepowered.api.Game;
-import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.text.BookView;
 import org.spongepowered.api.text.Text;
@@ -18,8 +17,6 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Consumer;
-import java.util.logging.Logger;
 
 @Singleton
 public class BookGenerator {
@@ -27,8 +24,6 @@ public class BookGenerator {
     private Game game;
     @Inject
     private DialogDao dialogDao;
-    @Inject
-    private Logger logger;
 
     public BookView getDialog(DialogBean dialog){
         BookView.Builder bookviewBuilder = BookView.builder();
@@ -38,6 +33,16 @@ public class BookGenerator {
         }
            return bookviewBuilder.build();
     }
+
+    public BookView getDefaultView(Player player){
+        DialogBean dialogBean = new DialogBean(dialogDao.getIndex());
+        PageBean pageBean =new PageBean();
+        pageBean.setMessage("Grettings " + player.getName());
+        dialogBean.getPages().add(pageBean);
+        return getDialog(dialogBean);
+    }
+
+
     private Text generatePage(PageBean page){
         Text.Builder text = Text.builder(page.getMessage());
         if (!page.getButtonBeanList().isEmpty()) {
@@ -48,6 +53,22 @@ public class BookGenerator {
         }
         return text.build();
     }
+
+    public Optional<BookView> getDialog(int dialogid){
+        Optional<DialogBean> dialogBeanOptional = dialogDao.getDialog(dialogid);
+
+        if (dialogBeanOptional.isPresent()) {
+            BookView.Builder bookviewBuilder = BookView.builder();
+            for (PageBean pageBean : dialogBeanOptional.get().getPages()
+                    ) {
+                bookviewBuilder.addPage(generatePage(pageBean));
+            }
+            return Optional.of(bookviewBuilder.build());
+        }
+        return Optional.empty();
+    }
+
+
 
     private Text generateButton(ButtonBean buttonBean) {
         Text.Builder textBuilder = Text.builder(buttonBean.getText());
