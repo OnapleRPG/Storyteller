@@ -1,21 +1,27 @@
 package com.ylinor.storyteller;
 
+import com.flowpowered.math.vector.Vector2i;
+import com.flowpowered.math.vector.Vector3i;
 import com.ylinor.storyteller.data.beans.ButtonBean;
 import com.ylinor.storyteller.data.beans.DialogBean;
 import com.ylinor.storyteller.data.beans.PageBean;
 import com.ylinor.storyteller.data.access.DialogDao;
 
 import org.spongepowered.api.Game;
+import org.spongepowered.api.Sponge;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.text.BookView;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.action.TextActions;
 import org.spongepowered.api.text.format.TextColor;
 import org.spongepowered.api.text.format.TextColors;
+import org.spongepowered.api.world.Location;
+import org.spongepowered.api.world.World;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 
 @Singleton
@@ -44,7 +50,7 @@ public class BookGenerator {
 
 
     private Text generatePage(PageBean page){
-        Text.Builder text = Text.builder(page.getMessage());
+        Text.Builder text = Text.builder(page.getMessage() + "\n");
         if (!page.getButtonBeanList().isEmpty()) {
             List<ButtonBean> buttons = page.getButtonBeanList();
             for (ButtonBean buttonBean : buttons) {
@@ -81,9 +87,28 @@ public class BookGenerator {
             case OPEN_DIALOG:
                 textBuilder.onClick(TextActions.executeCallback(commandSource-> { changeDialog((Player)commandSource,Integer.parseInt(buttonBean.getArg())); }));
                 break;
+            case EXECUTE_COMMAND:
+                textBuilder.onClick(TextActions.runCommand(buttonBean.getArg()));
+            case TELEPORT:
+                textBuilder.onClick(TextActions.executeCallback(commandSource-> { teleport((Player)commandSource,buttonBean.getArg()); }));
+                break;
         }
         return textBuilder.build();
     }
+
+    private void teleport(Player source, String posision) {
+        try{
+            String pos[] = posision.split(" ");
+            Vector3i vector3i = new Vector3i(Integer.parseInt(pos[0]),Integer.parseInt(pos[1]),Integer.parseInt(pos[2]));
+            Location<World> location = Storyteller.getWorld().getLocation(vector3i);
+            source.setLocation(location);
+        } catch (Exception e){
+            source.sendMessage(Text.builder("the position : "+ posision + " is invalide.").color(TextColors.RED).build());
+            e.printStackTrace();
+        }
+
+    }
+
     private void changeDialog(Player source, int dialogIndex) {
         Optional<DialogBean> dialogBeanOptional = dialogDao.getDialog(dialogIndex);
         if(dialogBeanOptional.isPresent()){

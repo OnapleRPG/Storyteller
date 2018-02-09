@@ -32,6 +32,7 @@ import org.spongepowered.api.event.game.state.GameInitializationEvent;
 import org.spongepowered.api.plugin.Plugin;
 import org.spongepowered.api.text.BookView;
 import org.spongepowered.api.text.Text;
+import org.spongepowered.api.world.World;
 
 import javax.inject.Inject;
 
@@ -138,6 +139,8 @@ public class Storyteller {
             }
 
         }
+
+
        /* BookView bookView = BookView.builder()
                 .title(Text.of("Story Mode"))
                 .author(Text.of("Notch"))
@@ -149,5 +152,15 @@ public class Storyteller {
 
         // do stuff
     }
-
+    /**
+     * Get the current world
+     * @return the world
+     */
+    public static World getWorld(){
+        Optional<World> worldOptional = Sponge.getServer().getWorld("world");
+        if(worldOptional.isPresent()){
+            return worldOptional.get();
+        }
+        return null;
+    }
 }
