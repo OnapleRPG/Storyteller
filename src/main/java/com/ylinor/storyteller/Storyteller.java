@@ -1,21 +1,9 @@
 package com.ylinor.storyteller;
 
 
-import com.google.common.reflect.TypeToken;
-import com.ylinor.storyteller.data.beans.ButtonBean;
 import com.ylinor.storyteller.data.beans.DialogBean;
-import com.ylinor.storyteller.data.beans.PageBean;
 import com.ylinor.storyteller.data.access.DialogDao;
 import com.ylinor.storyteller.data.handlers.ConfigurationHandler;
-import com.ylinor.storyteller.serializer.ButtonSerializer;
-import com.ylinor.storyteller.serializer.DialogSerializer;
-import com.ylinor.storyteller.serializer.PageSerializer;
-import ninja.leaping.configurate.ConfigurationOptions;
-import ninja.leaping.configurate.commented.CommentedConfigurationNode;
-import ninja.leaping.configurate.hocon.HoconConfigurationLoader;
-import ninja.leaping.configurate.loader.ConfigurationLoader;
-import ninja.leaping.configurate.objectmapping.serialize.TypeSerializerCollection;
-import ninja.leaping.configurate.objectmapping.serialize.TypeSerializers;
 import org.slf4j.Logger;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.args.GenericArguments;
@@ -36,7 +24,6 @@ import org.spongepowered.api.world.World;
 import javax.inject.Inject;
 
 import java.nio.file.Path;
-import java.util.List;
 import java.util.Optional;
 
 
@@ -68,11 +55,10 @@ public class Storyteller {
 
     @Listener
     public void onServerStart(GameInitializationEvent event) {
-        ConfigurationHandler.readHarvestablesConfiguration(ConfigurationHandler.loadConfiguration(defaultConfig+""));
+        ConfigurationHandler.readDialogsConfiguration(ConfigurationHandler.loadConfiguration(defaultConfig+""));
 
-        List<DialogBean> dialogs = ConfigurationHandler.getDialogList();
-        for (DialogBean dialogBean:dialogs) {
-            dialogDao.addDialog(dialogBean);
+        for (DialogBean dialog: ConfigurationHandler.getDialogList()) {
+            dialogDao.addDialog(dialog);
         }
 
         CommandSpec commandSpec = CommandSpec.builder()
@@ -108,7 +94,7 @@ public class Storyteller {
 
         dialogDao.addDialog(dialog2);*/
 
-        logger.info("Storyteller Started with " + dialogs.size());
+        logger.info("STORYTELLER initialized.");
     }
 
     @Listener
@@ -118,9 +104,9 @@ public class Storyteller {
         Optional<Text> name = entity.get(Keys.DISPLAY_NAME);
         if (name.isPresent()) {
             logger.info(name.get().toPlain());
-            Optional<DialogBean> d = dialogDao.getDialogByTrigger((name.get().toPlain()));
-            if (d.isPresent()) {
-                BookView bookView = bookGenerator.getDialog(d.get());
+            Optional<DialogBean> dialog = dialogDao.getDialogByTrigger((name.get().toPlain()));
+            if (dialog.isPresent()) {
+                BookView bookView = bookGenerator.getDialog(dialog.get());
                 player.sendBookView(bookView);
             } else {
                 player.sendBookView(bookGenerator.getDefaultView(player));

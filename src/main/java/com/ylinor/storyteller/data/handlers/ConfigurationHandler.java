@@ -33,7 +33,7 @@ public class ConfigurationHandler {
      * Read storyteller configuration and interpret it
      * @param configurationNode ConfigurationNode to read from
      */
-    public static void readHarvestablesConfiguration(CommentedConfigurationNode configurationNode){
+    public static void readDialogsConfiguration(CommentedConfigurationNode configurationNode){
         dialogList = new ArrayList<>();
         TypeSerializers.getDefaultSerializers().registerType(TypeToken.of(DialogBean.class), new DialogSerializer());
         try {
@@ -41,6 +41,7 @@ public class ConfigurationHandler {
         } catch (ObjectMappingException e) {
             Storyteller.getLogger().error("Error while reading configuration 'storyteller' : " + e.getMessage());
         }
+        Storyteller.getLogger().debug(dialogList.size() + " dialogs loaded.");
     }
 
     /**

@@ -31,13 +31,17 @@ public class BookGenerator {
     @Inject
     private DialogDao dialogDao;
 
+    /**
+     * Create a bookview from a dialog
+     * @param dialog Dialog data
+     * @return BookView to display
+     */
     public BookView getDialog(DialogBean dialog){
         BookView.Builder bookviewBuilder = BookView.builder();
-        for (PageBean pageBean : dialog.getPages()
-             ) {
+        for (PageBean pageBean : dialog.getPages()) {
             bookviewBuilder.addPage(generatePage(pageBean));
         }
-           return bookviewBuilder.build();
+        return bookviewBuilder.build();
     }
 
     public BookView getDefaultView(Player player){
@@ -48,13 +52,17 @@ public class BookGenerator {
         return getDialog(dialogBean);
     }
 
-
+    /**
+     * Generate the text to print inside a page
+     * @param page Page data
+     * @return Text to display (with optional buttons)
+     */
     private Text generatePage(PageBean page){
         Text.Builder text = Text.builder(page.getMessage() + "\n");
         if (!page.getButtonBeanList().isEmpty()) {
             List<ButtonBean> buttons = page.getButtonBeanList();
             for (ButtonBean buttonBean : buttons) {
-            text.append(generateButton(buttonBean));
+                text.append(generateButton(buttonBean));
             }
         }
         return text.build();
@@ -75,6 +83,11 @@ public class BookGenerator {
     }
 
 
+    /**
+     * Generate a button that will commit an action
+     * @param buttonBean Button data
+     * @return Printed button
+     */
     private Text generateButton(ButtonBean buttonBean) {
         Text.Builder textBuilder = Text.builder(buttonBean.getText());
         Optional<TextColor> textColor = game.getRegistry().getType(TextColor.class,buttonBean.getColor().toUpperCase());
@@ -95,19 +108,29 @@ public class BookGenerator {
         return textBuilder.build();
     }
 
-    private void teleport(Player source, String posision) {
+    /**
+     * Teleport the player to a given position
+     * @param source Player to teleport
+     * @param position Position in a string format
+     */
+    private void teleport(Player source, String position) {
         try{
-            String pos[] = posision.split(" ");
+            String pos[] = position.split(" ");
             Vector3i vector3i = new Vector3i(Integer.parseInt(pos[0]),Integer.parseInt(pos[1]),Integer.parseInt(pos[2]));
             Location<World> location = Storyteller.getWorld().getLocation(vector3i);
             source.setLocation(location);
         } catch (Exception e){
-            source.sendMessage(Text.builder("the position : "+ posision + " is invalide.").color(TextColors.RED).build());
+            source.sendMessage(Text.builder("the position : "+ position + " is invalide.").color(TextColors.RED).build());
             e.printStackTrace();
         }
 
     }
 
+    /**
+     * Change the current dialog to a given dialog
+     * @param source Player to show dialog to
+     * @param dialogIndex Index of the dialog to show
+     */
     private void changeDialog(Player source, int dialogIndex) {
         Optional<DialogBean> dialogBeanOptional = dialogDao.getDialog(dialogIndex);
         if(dialogBeanOptional.isPresent()){

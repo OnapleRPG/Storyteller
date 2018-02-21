@@ -1,4 +1,4 @@
-package com.ylinor.storyteller.data.beans;
+package com.ylinor.storyteller.data;
 
 public enum ActionEnum {
     OPEN_DIALOG,

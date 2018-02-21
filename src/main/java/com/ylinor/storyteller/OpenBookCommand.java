@@ -21,6 +21,13 @@ public class OpenBookCommand implements CommandExecutor {
     public OpenBookCommand() {
     }
 
+    /**
+     * Command that open a given dialog book
+     * @param src Origin of the c ommand
+     * @param args Arguments provided with the command
+     * @return Command result state
+     * @throws CommandException
+     */
     @Override
     public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
         int dialogId;

@@ -1,5 +1,6 @@
 package com.ylinor.storyteller.data.beans;
 
+import com.ylinor.storyteller.data.ActionEnum;
 import com.ylinor.storyteller.data.ButtonBuilder;
 
 public class ButtonBean {
