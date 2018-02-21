@@ -75,7 +75,6 @@ public class BookGenerator {
     }
 
 
-
     private Text generateButton(ButtonBean buttonBean) {
         Text.Builder textBuilder = Text.builder(buttonBean.getText());
         Optional<TextColor> textColor = game.getRegistry().getType(TextColor.class,buttonBean.getColor().toUpperCase());

@@ -18,12 +18,9 @@ import javax.inject.Inject;
 import java.util.Optional;
 
 public class OpenBookCommand implements CommandExecutor {
-
-
-
-
     public OpenBookCommand() {
     }
+
     @Override
     public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
         int dialogId;

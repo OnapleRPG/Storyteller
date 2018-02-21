@@ -2,15 +2,14 @@ package com.ylinor.storyteller;
 
 
 import com.google.common.reflect.TypeToken;
-import com.ylinor.storyteller.data.beans.ActionEnum;
 import com.ylinor.storyteller.data.beans.ButtonBean;
 import com.ylinor.storyteller.data.beans.DialogBean;
 import com.ylinor.storyteller.data.beans.PageBean;
 import com.ylinor.storyteller.data.access.DialogDao;
+import com.ylinor.storyteller.data.handlers.ConfigurationHandler;
 import com.ylinor.storyteller.serializer.ButtonSerializer;
 import com.ylinor.storyteller.serializer.DialogSerializer;
 import com.ylinor.storyteller.serializer.PageSerializer;
-import ninja.leaping.configurate.ConfigurationNode;
 import ninja.leaping.configurate.ConfigurationOptions;
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
 import ninja.leaping.configurate.hocon.HoconConfigurationLoader;
@@ -37,7 +36,6 @@ import org.spongepowered.api.world.World;
 import javax.inject.Inject;
 
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -51,8 +49,15 @@ public class Storyteller {
 
     private static BookGenerator bookGenerator;
 
+    private static Logger logger;
     @Inject
-    private Logger logger;
+    private void setLogger(Logger logger) {
+        Storyteller.logger = logger;
+    }
+    public static Logger getLogger() {
+        return logger;
+    }
+
     @Inject
     private void setBookGenerator(BookGenerator bookGenerator){ this.bookGenerator= bookGenerator; }
     public static BookGenerator getBookGenerator(){
@@ -63,27 +68,10 @@ public class Storyteller {
 
     @Listener
     public void onServerStart(GameInitializationEvent event) {
+        ConfigurationHandler.readHarvestablesConfiguration(ConfigurationHandler.loadConfiguration(defaultConfig+""));
 
-        TypeSerializerCollection serializers = TypeSerializers.getDefaultSerializers().newChild();
-        serializers.registerType(TypeToken.of(ButtonBean.class), new ButtonSerializer());
-        serializers.registerType(TypeToken.of(PageBean.class), new PageSerializer());
-        serializers.registerType(TypeToken.of(DialogBean.class), new DialogSerializer());
-        ConfigurationOptions options = ConfigurationOptions.defaults().setSerializers(serializers);
-
-        ConfigurationLoader<CommentedConfigurationNode> loader =
-                HoconConfigurationLoader.builder().setPath(defaultConfig).build();
-
-        ConfigurationNode rootNode;
-        List<DialogBean> dialogBeanList = new ArrayList<>();
-        try {
-            rootNode = loader.load(options);
-            dialogBeanList = rootNode.getNode("dialogs").getList(TypeToken.of(DialogBean.class));
-        } catch (Exception e){
-            logger.error(e.getMessage());
-        }
-        logger.info("" + dialogBeanList.get(0).getTrigger().size());
-        for (DialogBean dialogBean:dialogBeanList
-             ) {
+        List<DialogBean> dialogs = ConfigurationHandler.getDialogList();
+        for (DialogBean dialogBean:dialogs) {
             dialogDao.addDialog(dialogBean);
         }
 
@@ -120,7 +108,7 @@ public class Storyteller {
 
         dialogDao.addDialog(dialog2);*/
 
-        logger.info("Storyteller Started with " + dialogBeanList.size());
+        logger.info("Storyteller Started with " + dialogs.size());
     }
 
     @Listener
