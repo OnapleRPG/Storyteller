@@ -70,30 +70,6 @@ public class Storyteller {
 
         Sponge.getCommandManager().register(this, commandSpec, "dialog");
 
-       /* ButtonBean buttonBean = new ButtonBean();
-        buttonBean.setId(0);
-        buttonBean.setText("click Me");
-        buttonBean.setColor("RED");
-        buttonBean.setAction(ActionEnum.OPEN_DIALOG);
-        buttonBean.setArg("1");
-        List<ButtonBean> buttons = new ArrayList<>();
-        buttons.add(buttonBean);
-        PageBean pageBean = new PageBean();
-        pageBean.setMessage("lorem ipsum dolor sit amet");
-        pageBean.setButtonBeanList(buttons);
-        DialogBean dialog1 = new DialogBean(dialogDao.getIndex());
-        List<PageBean> pages = new ArrayList<>();
-        pages.add(pageBean);
-        dialog1.setPages(pages);
-        dialogDao.addDialog(dialog1);
-
-        DialogBean dialog2 = new DialogBean(dialogDao.getIndex());
-        PageBean page2 = new PageBean();
-        page2.setMessage("deuxieme PAGE !!!!");
-        dialog2.getPages().add(page2);
-
-        dialogDao.addDialog(dialog2);*/
-
         logger.info("STORYTELLER initialized.");
     }
 
@@ -113,18 +89,6 @@ public class Storyteller {
             }
 
         }
-
-
-       /* BookView bookView = BookView.builder()
-                .title(Text.of("Story Mode"))
-                .author(Text.of("Notch"))
-                .addPage(Text.builder("There once was a Steve...").append(
-                        Text.builder("Click here!")
-                        .onClick(TextActions.runCommand("tell Spongesquad I'm ready!"))
-                        .build()).build()).build();*/
-
-
-        // do stuff
     }
     /**
      * Get the current world
