@@ -1,5 +1,6 @@
-package com.ylinor.storyteller;
+package com.ylinor.storyteller.commands;
 
+import com.ylinor.storyteller.Storyteller;
 import com.ylinor.storyteller.data.beans.DialogBean;
 
 import org.slf4j.Logger;

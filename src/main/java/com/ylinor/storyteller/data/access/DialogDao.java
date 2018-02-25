@@ -1,5 +1,6 @@
 package com.ylinor.storyteller.data.access;
 
+import com.ylinor.storyteller.Storyteller;
 import com.ylinor.storyteller.data.beans.DialogBean;
 import com.ylinor.storyteller.data.beans.PageBean;
 import org.spongepowered.api.entity.living.player.Player;
@@ -29,7 +30,7 @@ public class DialogDao {
     }
 
     public Optional<DialogBean> getDialogByTrigger(String trigger){
-       return dialogList.stream().filter(dialogBean -> dialogBean.getTrigger().contains(trigger)).findFirst();
+        return dialogList.stream().filter(dialogBean -> dialogBean.getTrigger().contains(trigger)).findFirst();
     }
 
 

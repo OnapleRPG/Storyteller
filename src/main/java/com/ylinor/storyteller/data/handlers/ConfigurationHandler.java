@@ -41,7 +41,7 @@ public class ConfigurationHandler {
         } catch (ObjectMappingException e) {
             Storyteller.getLogger().error("Error while reading configuration 'storyteller' : " + e.getMessage());
         }
-        Storyteller.getLogger().debug(dialogList.size() + " dialogs loaded.");
+        Storyteller.getLogger().info(dialogList.size() + " dialogs loaded.");
     }
 
     /**

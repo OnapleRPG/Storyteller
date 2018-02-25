@@ -1,6 +1,8 @@
 package com.ylinor.storyteller;
 
 
+import com.ylinor.storyteller.commands.OpenBookCommand;
+import com.ylinor.storyteller.commands.ReloadCommand;
 import com.ylinor.storyteller.data.beans.DialogBean;
 import com.ylinor.storyteller.data.access.DialogDao;
 import com.ylinor.storyteller.data.handlers.ConfigurationHandler;
@@ -29,10 +31,18 @@ import java.util.Optional;
 
 @Plugin(id = "storyteller", name = "Storyteller", version = "0.0.1")
 public class Storyteller {
+    private static Storyteller instance;
+    public static Storyteller getInstance() {
+        return instance;
+    }
 
     @Inject
     @DefaultConfig(sharedRoot = true)
     private Path defaultConfig;
+    @Inject
+    public void loadConfig() {
+        ConfigurationHandler.readDialogsConfiguration(ConfigurationHandler.loadConfiguration(defaultConfig+""));
+    }
 
     private static BookGenerator bookGenerator;
 
@@ -55,20 +65,27 @@ public class Storyteller {
 
     @Listener
     public void onServerStart(GameInitializationEvent event) {
-        ConfigurationHandler.readDialogsConfiguration(ConfigurationHandler.loadConfiguration(defaultConfig+""));
+        instance = this;
+        loadConfig();
 
         for (DialogBean dialog: ConfigurationHandler.getDialogList()) {
             dialogDao.addDialog(dialog);
         }
 
-        CommandSpec commandSpec = CommandSpec.builder()
+        CommandSpec dialogSpec = CommandSpec.builder()
                 .description(Text.of("Open book command"))
                 .permission("storyteller.command.read")
                 .arguments(GenericArguments.onlyOne(GenericArguments.integer(Text.of("dialog"))))
                 .executor(new OpenBookCommand())
                 .build();
+        CommandSpec reloadSpec = CommandSpec.builder()
+                .description(Text.of("Reload storyteller configuration"))
+                .permission("storyteller.command.reload")
+                .executor(new ReloadCommand())
+                .build();
 
-        Sponge.getCommandManager().register(this, commandSpec, "dialog");
+        Sponge.getCommandManager().register(this, dialogSpec, "dialog");
+        Sponge.getCommandManager().register(this, reloadSpec, "reload-storyteller");
 
         logger.info("STORYTELLER initialized.");
     }
