@@ -75,17 +75,14 @@ public class Storyteller {
 
     @Listener
     public void onInteract(InteractEntityEvent.Secondary event, @Root Player player) {
-
         Entity entity = event.getTargetEntity();
         Optional<Text> name = entity.get(Keys.DISPLAY_NAME);
         if (name.isPresent()) {
-            logger.info(name.get().toPlain());
-            Optional<DialogBean> dialog = dialogDao.getDialogByTrigger((name.get().toPlain()));
+            Optional<DialogBean> dialog = dialogDao.getDialogByTrigger(name.get().toPlain());
             if (dialog.isPresent()) {
                 BookView bookView = bookGenerator.getDialog(dialog.get());
                 player.sendBookView(bookView);
-            } else {
-                player.sendBookView(bookGenerator.getDefaultView(player));
+                event.setCancelled(true);
             }
 
         }

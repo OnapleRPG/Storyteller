@@ -3,6 +3,7 @@ package com.ylinor.storyteller.data.access;
 import com.ylinor.storyteller.data.beans.DialogBean;
 import com.ylinor.storyteller.data.beans.PageBean;
 import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.scoreboard.Scoreboard;
 
 import javax.inject.Singleton;
 import java.util.ArrayList;

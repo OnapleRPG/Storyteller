@@ -1,4 +1,4 @@
-package com.ylinor.storyteller.serializer;
+package com.ylinor.storyteller.data.serializer;
 
 import com.google.common.reflect.TypeToken;
 import com.ylinor.storyteller.data.ButtonBuilder;

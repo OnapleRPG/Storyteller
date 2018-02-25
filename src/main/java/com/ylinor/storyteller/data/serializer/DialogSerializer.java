@@ -1,7 +1,6 @@
-package com.ylinor.storyteller.serializer;
+package com.ylinor.storyteller.data.serializer;
 
 import com.google.common.reflect.TypeToken;
-import com.ylinor.storyteller.data.beans.ButtonBean;
 import com.ylinor.storyteller.data.beans.DialogBean;
 import com.ylinor.storyteller.data.beans.PageBean;
 import ninja.leaping.configurate.ConfigurationNode;
