@@ -1,7 +1,5 @@
 package com.ylinor.storyteller.data.beans;
 
-import com.ylinor.storyteller.data.access.DialogDao;
-
 import java.util.ArrayList;
 import java.util.List;
 

@@ -3,9 +3,9 @@ package com.ylinor.storyteller;
 
 import com.ylinor.storyteller.commands.OpenBookCommand;
 import com.ylinor.storyteller.commands.ReloadCommand;
-import com.ylinor.storyteller.data.access.PlayerDao;
+import com.ylinor.storyteller.data.access.ObjectiveDao;
 import com.ylinor.storyteller.data.beans.DialogBean;
-import com.ylinor.storyteller.data.access.DialogDao;
+import com.ylinor.storyteller.data.beans.ObjectiveBean;
 import com.ylinor.storyteller.data.handlers.ConfigurationHandler;
 import org.slf4j.Logger;
 import org.spongepowered.api.Sponge;
@@ -65,13 +65,20 @@ public class Storyteller {
         return bookGenerator;
     }
     @Inject
-    private PlayerDao playerDao;
+    private ObjectiveDao objectiveDao;
 
     @Listener
     public void onServerStart(GameInitializationEvent event) {
         instance = this;
         loadConfig();
-playerDao.createTableIfNotExist();
+        objectiveDao.createTableIfNotExist();
+        ObjectiveBean objectiveBean = new ObjectiveBean();
+        objectiveBean.setObjective("test");
+        objectiveBean.setPlayer("Spookileserpent");
+        objectiveBean.setState(0);
+        objectiveDao.insert(objectiveBean);
+
+
 
         CommandSpec dialogSpec = CommandSpec.builder()
                 .description(Text.of("Open book command"))

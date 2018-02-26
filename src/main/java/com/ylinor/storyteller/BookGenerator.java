@@ -1,19 +1,16 @@
 package com.ylinor.storyteller;
 
-import com.flowpowered.math.vector.Vector2i;
 import com.flowpowered.math.vector.Vector3i;
 import com.ylinor.storyteller.data.ActionEnum;
 import com.ylinor.storyteller.data.beans.ActionBean;
 import com.ylinor.storyteller.data.beans.ButtonBean;
 import com.ylinor.storyteller.data.beans.DialogBean;
 import com.ylinor.storyteller.data.beans.PageBean;
-import com.ylinor.storyteller.data.access.DialogDao;
 import com.ylinor.itemizer.service.IItemService;
 
 import com.ylinor.storyteller.data.handlers.ConfigurationHandler;
 import org.spongepowered.api.Game;
 import org.spongepowered.api.Sponge;
-import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.entity.Entity;
 import org.spongepowered.api.entity.EntityTypes;
