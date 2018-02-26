@@ -6,10 +6,16 @@ import com.ylinor.storyteller.data.beans.ButtonBean;
 import com.ylinor.storyteller.data.beans.DialogBean;
 import com.ylinor.storyteller.data.beans.PageBean;
 import com.ylinor.storyteller.data.access.DialogDao;
+import com.ylinor.itemizer.service.IItemService;
 
 import org.spongepowered.api.Game;
 import org.spongepowered.api.Sponge;
+import org.spongepowered.api.data.key.Keys;
+import org.spongepowered.api.entity.Entity;
+import org.spongepowered.api.entity.EntityTypes;
 import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.item.ItemType;
+import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.text.BookView;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.action.TextActions;
@@ -17,6 +23,7 @@ import org.spongepowered.api.text.format.TextColor;
 import org.spongepowered.api.text.format.TextColors;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
+import org.spongepowered.api.world.extent.Extent;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -47,7 +54,7 @@ public class BookGenerator {
     public BookView getDefaultView(Player player){
         DialogBean dialogBean = new DialogBean(dialogDao.getIndex());
         PageBean pageBean =new PageBean();
-        pageBean.setMessage("Grettings " + player.getName());
+        pageBean.setMessage("Salutations, " + player.getName() + ".");
         dialogBean.getPages().add(pageBean);
         return getDialog(dialogBean);
     }
@@ -101,8 +108,12 @@ public class BookGenerator {
                 break;
             case EXECUTE_COMMAND:
                 textBuilder.onClick(TextActions.runCommand(buttonBean.getArg()));
+                break;
             case TELEPORT:
-                textBuilder.onClick(TextActions.executeCallback(commandSource-> { teleport((Player)commandSource,buttonBean.getArg()); }));
+                textBuilder.onClick(TextActions.executeCallback(commandSource-> { teleport((Player)commandSource, buttonBean.getArg()); }));
+                break;
+            case GIVE_ITEM:
+                textBuilder.onClick(TextActions.executeCallback(commandSource-> { giveItem((Player)commandSource, buttonBean.getArg()); }));
                 break;
         }
         return textBuilder.build();
@@ -123,7 +134,6 @@ public class BookGenerator {
             source.sendMessage(Text.builder("the position : "+ position + " is invalide.").color(TextColors.RED).build());
             e.printStackTrace();
         }
-
     }
 
     /**
@@ -138,6 +148,36 @@ public class BookGenerator {
         } else {
             source.sendMessage(Text.builder("The dialog at the index : "+ dialogIndex + " can not be loaded.").color(TextColors.RED).build());
         }
+    }
 
+    /**
+     * Give the player an item from Itemizer
+     * @param source Player to give the item to
+     * @param itemString Id or name of the item
+     */
+    private void giveItem(Player source, String itemString) {
+        Optional<ItemStack> optionalItem = Optional.empty();
+        try {
+            int itemId = Integer.parseInt(itemString);
+            Optional<IItemService> optionalIItemService = Sponge.getServiceManager().provide(IItemService.class);
+            if (optionalIItemService.isPresent()) {
+                IItemService iItemService = optionalIItemService.get();
+                optionalItem = iItemService.retrieve(itemId);
+            }
+        } catch (NumberFormatException e) {
+            Optional<ItemType> optionalType = Sponge.getRegistry().getType(ItemType.class, itemString);
+            if (optionalType.isPresent()) {
+                optionalItem = Optional.of(ItemStack.builder().itemType(optionalType.get()).build());
+            }
+        }
+        if (optionalItem.isPresent()) {
+            ItemStack item = optionalItem.get();
+            if (source.getInventory().offer(item).getRejectedItems().size() > 0) {
+                Extent extent = source.getLocation().getExtent();
+                Entity entity = extent.createEntity(EntityTypes.ITEM, source.getLocation().getPosition());
+                entity.offer(Keys.REPRESENTED_ITEM, item.createSnapshot());
+                extent.spawnEntity(entity);
+            }
+        }
     }
 }
