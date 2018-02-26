@@ -99,6 +99,10 @@ public class Storyteller {
                 BookView bookView = bookGenerator.getDialog(dialog.get());
                 player.sendBookView(bookView);
                 event.setCancelled(true);
+            } else {
+                BookView bookView = bookGenerator.getDefaultView(player);
+                player.sendBookView(bookView);
+                event.setCancelled(true);
             }
 
         }
