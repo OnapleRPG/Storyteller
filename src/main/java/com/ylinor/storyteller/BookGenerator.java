@@ -10,8 +10,10 @@ import com.ylinor.storyteller.data.beans.PageBean;
 import com.ylinor.storyteller.data.access.DialogDao;
 import com.ylinor.itemizer.service.IItemService;
 
+import com.ylinor.storyteller.data.handlers.ConfigurationHandler;
 import org.spongepowered.api.Game;
 import org.spongepowered.api.Sponge;
+import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.entity.Entity;
 import org.spongepowered.api.entity.EntityTypes;
@@ -36,7 +38,7 @@ public class BookGenerator {
     @Inject
     private Game game;
     @Inject
-    private DialogDao dialogDao;
+    private ConfigurationHandler configurationHandler;
 
     /**
      * Create a bookview from a dialog
@@ -52,7 +54,7 @@ public class BookGenerator {
     }
 
     public BookView getDefaultView(Player player){
-        DialogBean dialogBean = new DialogBean(dialogDao.getIndex());
+        DialogBean dialogBean = new DialogBean(configurationHandler.getIndex());
         PageBean pageBean =new PageBean();
         pageBean.setMessage("Salutations, " + player.getName() + ".");
         dialogBean.getPages().add(pageBean);
@@ -76,7 +78,7 @@ public class BookGenerator {
     }
 
     public Optional<BookView> getDialog(int dialogid){
-        Optional<DialogBean> dialogBeanOptional = dialogDao.getDialog(dialogid);
+        Optional<DialogBean> dialogBeanOptional = configurationHandler.getDialog(dialogid);
 
         if (dialogBeanOptional.isPresent()) {
             BookView.Builder bookviewBuilder = BookView.builder();
@@ -133,7 +135,7 @@ public class BookGenerator {
      * @param dialogIndex Index of the dialog to show
      */
     private void changeDialog(Player source, int dialogIndex) {
-        Optional<DialogBean> dialogBeanOptional = dialogDao.getDialog(dialogIndex);
+        Optional<DialogBean> dialogBeanOptional = configurationHandler.getDialog(dialogIndex);
         if(dialogBeanOptional.isPresent()){
             source.sendBookView(getDialog(dialogBeanOptional.get()));
         } else {

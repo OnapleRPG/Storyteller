@@ -18,16 +18,20 @@ import ninja.leaping.configurate.objectmapping.ObjectMappingException;
 import ninja.leaping.configurate.objectmapping.serialize.TypeSerializerCollection;
 import ninja.leaping.configurate.objectmapping.serialize.TypeSerializers;
 
+import javax.inject.Singleton;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
+@Singleton
 public class ConfigurationHandler {
-    private ConfigurationHandler() {}
+    public ConfigurationHandler() {}
 
-    private static List<DialogBean> dialogList;
-    public static List<DialogBean> getDialogList(){
+    private  List<DialogBean> dialogList;
+    private int index = 0;
+    public  List<DialogBean> getDialogList(){
         return dialogList;
     }
 
@@ -35,7 +39,7 @@ public class ConfigurationHandler {
      * Read storyteller configuration and interpret it
      * @param configurationNode ConfigurationNode to read from
      */
-    public static void readDialogsConfiguration(CommentedConfigurationNode configurationNode){
+    public  void readDialogsConfiguration(CommentedConfigurationNode configurationNode){
         dialogList = new ArrayList<>();
         TypeSerializers.getDefaultSerializers().registerType(TypeToken.of(DialogBean.class), new DialogSerializer());
         try {
@@ -43,6 +47,7 @@ public class ConfigurationHandler {
         } catch (ObjectMappingException e) {
             Storyteller.getLogger().error("Error while reading configuration 'storyteller' : " + e.getMessage());
         }
+        index = dialogList.stream().mapToInt(c -> c.getId()).max().getAsInt();
         Storyteller.getLogger().info(dialogList.size() + " dialogs loaded.");
     }
 
@@ -51,7 +56,7 @@ public class ConfigurationHandler {
      * @param configName Name of the configuration in the configuration folder
      * @return Configuration ready to be used
      */
-    public static CommentedConfigurationNode loadConfiguration(String configName) {
+    public  CommentedConfigurationNode loadConfiguration(String configName) {
         TypeSerializerCollection serializers = TypeSerializers.getDefaultSerializers().newChild();
         serializers.registerType(TypeToken.of(ActionBean.class), new ActionSerializer());
         serializers.registerType(TypeToken.of(ButtonBean.class), new ButtonSerializer());
@@ -66,5 +71,20 @@ public class ConfigurationHandler {
             Storyteller.getLogger().error("Error while loading configuration '" + configName + "' : " + e.getMessage());
         }
         return configNode;
+    }
+
+    public Optional<DialogBean> getDialogByTrigger(String trigger){
+        return dialogList.stream().filter(dialogBean -> dialogBean.getTrigger().contains(trigger)).findFirst();
+    }
+
+    public int getIndex(){
+        return index;
+    }
+    public Optional<DialogBean> getDialog(int index){
+        try {
+            return Optional.of(dialogList.get(index));
+        } catch (IndexOutOfBoundsException e){
+            return Optional.empty();
+        }
     }
 }

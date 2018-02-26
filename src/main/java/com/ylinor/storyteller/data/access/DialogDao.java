@@ -13,7 +13,7 @@ import java.util.Optional;
 
 @Singleton
 public class DialogDao {
-    private int index=0;
+   /* private int index=0;
     private List<DialogBean> dialogList = new ArrayList<>();
     public Optional<DialogBean> getDialog(int index){
         try {
@@ -36,5 +36,5 @@ public class DialogDao {
 
     public int getIndex(){
         return index;
-    }
+    }*/
 }

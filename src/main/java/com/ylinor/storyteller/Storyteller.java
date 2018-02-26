@@ -3,6 +3,7 @@ package com.ylinor.storyteller;
 
 import com.ylinor.storyteller.commands.OpenBookCommand;
 import com.ylinor.storyteller.commands.ReloadCommand;
+import com.ylinor.storyteller.data.access.PlayerDao;
 import com.ylinor.storyteller.data.beans.DialogBean;
 import com.ylinor.storyteller.data.access.DialogDao;
 import com.ylinor.storyteller.data.handlers.ConfigurationHandler;
@@ -39,8 +40,12 @@ public class Storyteller {
     @Inject
     @DefaultConfig(sharedRoot = true)
     private Path defaultConfig;
+
+    @Inject
+    private ConfigurationHandler configurationHandler;
+
     public void loadConfig() {
-        ConfigurationHandler.readDialogsConfiguration(ConfigurationHandler.loadConfiguration(defaultConfig+""));
+        configurationHandler.readDialogsConfiguration(configurationHandler.loadConfiguration(defaultConfig+""));
     }
 
     private static BookGenerator bookGenerator;
@@ -60,16 +65,13 @@ public class Storyteller {
         return bookGenerator;
     }
     @Inject
-    private DialogDao dialogDao;
+    private PlayerDao playerDao;
 
     @Listener
     public void onServerStart(GameInitializationEvent event) {
         instance = this;
         loadConfig();
-
-        for (DialogBean dialog: ConfigurationHandler.getDialogList()) {
-            dialogDao.addDialog(dialog);
-        }
+playerDao.createTableIfNotExist();
 
         CommandSpec dialogSpec = CommandSpec.builder()
                 .description(Text.of("Open book command"))
@@ -94,7 +96,7 @@ public class Storyteller {
         Entity entity = event.getTargetEntity();
         Optional<Text> name = entity.get(Keys.DISPLAY_NAME);
         if (name.isPresent()) {
-            Optional<DialogBean> dialog = dialogDao.getDialogByTrigger(name.get().toPlain());
+            Optional<DialogBean> dialog = configurationHandler.getDialogByTrigger(name.get().toPlain());
             if (dialog.isPresent()) {
                 BookView bookView = bookGenerator.getDialog(dialog.get());
                 player.sendBookView(bookView);
