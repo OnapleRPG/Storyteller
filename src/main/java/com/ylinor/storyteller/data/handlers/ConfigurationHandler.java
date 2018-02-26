@@ -2,9 +2,11 @@ package com.ylinor.storyteller.data.handlers;
 
 import com.google.common.reflect.TypeToken;
 import com.ylinor.storyteller.Storyteller;
+import com.ylinor.storyteller.data.beans.ActionBean;
 import com.ylinor.storyteller.data.beans.ButtonBean;
 import com.ylinor.storyteller.data.beans.DialogBean;
 import com.ylinor.storyteller.data.beans.PageBean;
+import com.ylinor.storyteller.data.serializer.ActionSerializer;
 import com.ylinor.storyteller.data.serializer.ButtonSerializer;
 import com.ylinor.storyteller.data.serializer.DialogSerializer;
 import com.ylinor.storyteller.data.serializer.PageSerializer;
@@ -51,6 +53,7 @@ public class ConfigurationHandler {
      */
     public static CommentedConfigurationNode loadConfiguration(String configName) {
         TypeSerializerCollection serializers = TypeSerializers.getDefaultSerializers().newChild();
+        serializers.registerType(TypeToken.of(ActionBean.class), new ActionSerializer());
         serializers.registerType(TypeToken.of(ButtonBean.class), new ButtonSerializer());
         serializers.registerType(TypeToken.of(PageBean.class), new PageSerializer());
         serializers.registerType(TypeToken.of(DialogBean.class), new DialogSerializer());

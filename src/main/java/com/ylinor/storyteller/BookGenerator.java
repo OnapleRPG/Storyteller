@@ -2,6 +2,8 @@ package com.ylinor.storyteller;
 
 import com.flowpowered.math.vector.Vector2i;
 import com.flowpowered.math.vector.Vector3i;
+import com.ylinor.storyteller.data.ActionEnum;
+import com.ylinor.storyteller.data.beans.ActionBean;
 import com.ylinor.storyteller.data.beans.ButtonBean;
 import com.ylinor.storyteller.data.beans.DialogBean;
 import com.ylinor.storyteller.data.beans.PageBean;
@@ -27,9 +29,7 @@ import org.spongepowered.api.world.extent.Extent;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import java.util.List;
-import java.util.Locale;
-import java.util.Optional;
+import java.util.*;
 
 @Singleton
 public class BookGenerator {
@@ -98,25 +98,55 @@ public class BookGenerator {
     private Text generateButton(ButtonBean buttonBean) {
         Text.Builder textBuilder = Text.builder(buttonBean.getText());
         Optional<TextColor> textColor = game.getRegistry().getType(TextColor.class,buttonBean.getColor().toUpperCase());
-        if(textColor.isPresent()){
+        if (textColor.isPresent()) {
             textBuilder.color(textColor.get());
         }
-
-        switch (buttonBean.getAction()) {
-            case OPEN_DIALOG:
-                textBuilder.onClick(TextActions.executeCallback(commandSource-> { changeDialog((Player)commandSource,Integer.parseInt(buttonBean.getArg())); }));
-                break;
-            case EXECUTE_COMMAND:
-                textBuilder.onClick(TextActions.runCommand(buttonBean.getArg()));
-                break;
-            case TELEPORT:
-                textBuilder.onClick(TextActions.executeCallback(commandSource-> { teleport((Player)commandSource, buttonBean.getArg()); }));
-                break;
-            case GIVE_ITEM:
-                textBuilder.onClick(TextActions.executeCallback(commandSource-> { giveItem((Player)commandSource, buttonBean.getArg()); }));
-                break;
+        List<ActionBean> actions = buttonBean.getActions();
+        Map<ActionEnum, String> effectiveActions = new HashMap<>();
+        for(ActionBean action: actions) {
+            effectiveActions.put(ActionEnum.valueOf(action.getName()), action.getArg());
         }
+        textBuilder.onClick(TextActions.executeCallback(commandSource-> {
+            for (Map.Entry<ActionEnum, String> effectiveAction : effectiveActions.entrySet()) {
+                switch (effectiveAction.getKey()) {
+                    case OPEN_DIALOG:
+                        changeDialog((Player)commandSource,Integer.parseInt(effectiveAction.getValue()));
+                        break;
+                    case EXECUTE_COMMAND:
+                        executeCommand((Player)commandSource, effectiveAction.getValue());
+                        break;
+                    case TELEPORT:
+                        teleport((Player)commandSource, effectiveAction.getValue());
+                        break;
+                    case GIVE_ITEM:
+                        giveItem((Player)commandSource, effectiveAction.getValue());
+                        break;
+                }
+            }
+        }));
         return textBuilder.build();
+    }
+
+    /**
+     * Change the current dialog to a given dialog
+     * @param source Player to show dialog to
+     * @param dialogIndex Index of the dialog to show
+     */
+    private void changeDialog(Player source, int dialogIndex) {
+        Optional<DialogBean> dialogBeanOptional = dialogDao.getDialog(dialogIndex);
+        if(dialogBeanOptional.isPresent()){
+            source.sendBookView(getDialog(dialogBeanOptional.get()));
+        } else {
+            source.sendMessage(Text.builder("The dialog at the index : "+ dialogIndex + " cannot be loaded.").color(TextColors.RED).build());
+        }
+    }
+
+    /**
+     * Execute a command
+     * @param commandText Command line
+     */
+    private void executeCommand(Player source, String commandText) {
+        Sponge.getCommandManager().process(source, commandText);
     }
 
     /**
@@ -131,22 +161,8 @@ public class BookGenerator {
             Location<World> location = Storyteller.getWorld().getLocation(vector3i);
             source.setLocation(location);
         } catch (Exception e){
-            source.sendMessage(Text.builder("the position : "+ position + " is invalide.").color(TextColors.RED).build());
+            source.sendMessage(Text.builder("The position : "+ position + " is invalid.").color(TextColors.RED).build());
             e.printStackTrace();
-        }
-    }
-
-    /**
-     * Change the current dialog to a given dialog
-     * @param source Player to show dialog to
-     * @param dialogIndex Index of the dialog to show
-     */
-    private void changeDialog(Player source, int dialogIndex) {
-        Optional<DialogBean> dialogBeanOptional = dialogDao.getDialog(dialogIndex);
-        if(dialogBeanOptional.isPresent()){
-            source.sendBookView(getDialog(dialogBeanOptional.get()));
-        } else {
-            source.sendMessage(Text.builder("The dialog at the index : "+ dialogIndex + " can not be loaded.").color(TextColors.RED).build());
         }
     }
 
