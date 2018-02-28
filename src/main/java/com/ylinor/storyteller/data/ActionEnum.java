@@ -4,5 +4,6 @@ public enum ActionEnum {
     OPEN_DIALOG,
     EXECUTE_COMMAND,
     GIVE_ITEM,
-    TELEPORT
+    TELEPORT,
+    SET_OBJECTIVE
 }

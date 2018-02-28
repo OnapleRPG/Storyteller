@@ -2,10 +2,8 @@ package com.ylinor.storyteller.data.handlers;
 
 import com.google.common.reflect.TypeToken;
 import com.ylinor.storyteller.Storyteller;
-import com.ylinor.storyteller.data.beans.ActionBean;
-import com.ylinor.storyteller.data.beans.ButtonBean;
-import com.ylinor.storyteller.data.beans.DialogBean;
-import com.ylinor.storyteller.data.beans.PageBean;
+import com.ylinor.storyteller.data.access.ObjectiveDao;
+import com.ylinor.storyteller.data.beans.*;
 import com.ylinor.storyteller.data.serializer.ActionSerializer;
 import com.ylinor.storyteller.data.serializer.ButtonSerializer;
 import com.ylinor.storyteller.data.serializer.DialogSerializer;
@@ -18,19 +16,24 @@ import ninja.leaping.configurate.objectmapping.ObjectMappingException;
 import ninja.leaping.configurate.objectmapping.serialize.TypeSerializerCollection;
 import ninja.leaping.configurate.objectmapping.serialize.TypeSerializers;
 
+import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Singleton
 public class ConfigurationHandler {
+    @Inject
+    ObjectiveDao objectiveDao;
+
     public ConfigurationHandler() {}
 
     private  List<DialogBean> dialogList;
-    private int index = 0;
     public  List<DialogBean> getDialogList(){
         return dialogList;
     }
@@ -39,7 +42,7 @@ public class ConfigurationHandler {
      * Read storyteller configuration and interpret it
      * @param configurationNode ConfigurationNode to read from
      */
-    public  void readDialogsConfiguration(CommentedConfigurationNode configurationNode){
+    public void readDialogsConfiguration(CommentedConfigurationNode configurationNode){
         dialogList = new ArrayList<>();
         TypeSerializers.getDefaultSerializers().registerType(TypeToken.of(DialogBean.class), new DialogSerializer());
         try {
@@ -47,7 +50,6 @@ public class ConfigurationHandler {
         } catch (ObjectMappingException e) {
             Storyteller.getLogger().error("Error while reading configuration 'storyteller' : " + e.getMessage());
         }
-        index = dialogList.stream().mapToInt(c -> c.getId()).max().getAsInt();
         Storyteller.getLogger().info(dialogList.size() + " dialogs loaded.");
     }
 
@@ -71,20 +73,5 @@ public class ConfigurationHandler {
             Storyteller.getLogger().error("Error while loading configuration '" + configName + "' : " + e.getMessage());
         }
         return configNode;
-    }
-
-    public Optional<DialogBean> getDialogByTrigger(String trigger){
-        return dialogList.stream().filter(dialogBean -> dialogBean.getTrigger().contains(trigger)).findFirst();
-    }
-
-    public int getIndex(){
-        return index;
-    }
-    public Optional<DialogBean> getDialog(int index){
-        try {
-            return Optional.of(dialogList.get(index));
-        } catch (IndexOutOfBoundsException e){
-            return Optional.empty();
-        }
     }
 }

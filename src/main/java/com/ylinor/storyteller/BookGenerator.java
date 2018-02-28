@@ -1,14 +1,12 @@
 package com.ylinor.storyteller;
 
 import com.flowpowered.math.vector.Vector3i;
+import com.ylinor.storyteller.action.DialogAction;
+import com.ylinor.storyteller.action.ObjectiveAction;
 import com.ylinor.storyteller.data.ActionEnum;
-import com.ylinor.storyteller.data.beans.ActionBean;
-import com.ylinor.storyteller.data.beans.ButtonBean;
-import com.ylinor.storyteller.data.beans.DialogBean;
-import com.ylinor.storyteller.data.beans.PageBean;
+import com.ylinor.storyteller.data.beans.*;
 import com.ylinor.itemizer.service.IItemService;
 
-import com.ylinor.storyteller.data.handlers.ConfigurationHandler;
 import org.spongepowered.api.Game;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.data.key.Keys;
@@ -35,27 +33,21 @@ public class BookGenerator {
     @Inject
     private Game game;
     @Inject
-    private ConfigurationHandler configurationHandler;
+    private DialogAction dialogAction;
+    @Inject
+    private ObjectiveAction objectiveAction;
 
     /**
      * Create a bookview from a dialog
      * @param dialog Dialog data
      * @return BookView to display
      */
-    public BookView getDialog(DialogBean dialog){
+    public BookView generateDialog(DialogBean dialog){
         BookView.Builder bookviewBuilder = BookView.builder();
         for (PageBean pageBean : dialog.getPages()) {
             bookviewBuilder.addPage(generatePage(pageBean));
         }
         return bookviewBuilder.build();
-    }
-
-    public BookView getDefaultView(Player player){
-        DialogBean dialogBean = new DialogBean(configurationHandler.getIndex());
-        PageBean pageBean =new PageBean();
-        pageBean.setMessage("Salutations, " + player.getName() + ".");
-        dialogBean.getPages().add(pageBean);
-        return getDialog(dialogBean);
     }
 
     /**
@@ -74,20 +66,17 @@ public class BookGenerator {
         return text.build();
     }
 
-    public Optional<BookView> getDialog(int dialogid){
-        Optional<DialogBean> dialogBeanOptional = configurationHandler.getDialog(dialogid);
-
-        if (dialogBeanOptional.isPresent()) {
-            BookView.Builder bookviewBuilder = BookView.builder();
-            for (PageBean pageBean : dialogBeanOptional.get().getPages()
-                    ) {
-                bookviewBuilder.addPage(generatePage(pageBean));
-            }
-            return Optional.of(bookviewBuilder.build());
-        }
-        return Optional.empty();
+    /**
+     * Create the default BookView
+     * @param player Player to address to
+     * @return BookView to display
+     */
+    public BookView generateDefaultBook(Player player){
+        BookView.Builder bookviewBuilder = BookView.builder();
+        Text.Builder text = Text.builder("Salutations, " + player.getName() + ".");
+        bookviewBuilder.addPage(text.build());
+        return bookviewBuilder.build();
     }
-
 
     /**
      * Generate a button that will commit an action
@@ -120,6 +109,9 @@ public class BookGenerator {
                     case GIVE_ITEM:
                         giveItem((Player)commandSource, effectiveAction.getValue());
                         break;
+                    case SET_OBJECTIVE:
+                        objectiveAction.setObjective((Player)commandSource, effectiveAction.getValue());
+                        break;
                 }
             }
         }));
@@ -132,9 +124,9 @@ public class BookGenerator {
      * @param dialogIndex Index of the dialog to show
      */
     private void changeDialog(Player source, int dialogIndex) {
-        Optional<DialogBean> dialogBeanOptional = configurationHandler.getDialog(dialogIndex);
+        Optional<DialogBean> dialogBeanOptional = dialogAction.getDialog(dialogIndex);
         if(dialogBeanOptional.isPresent()){
-            source.sendBookView(getDialog(dialogBeanOptional.get()));
+            source.sendBookView(generateDialog(dialogBeanOptional.get()));
         } else {
             source.sendMessage(Text.builder("The dialog at the index : "+ dialogIndex + " cannot be loaded.").color(TextColors.RED).build());
         }

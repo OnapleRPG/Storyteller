@@ -9,6 +9,12 @@ public class ObjectiveBean {
     public ObjectiveBean() {
     }
 
+    public ObjectiveBean(String player, String objective, int state) {
+        this.player = player;
+        this.objective = objective;
+        this.state = state;
+    }
+
     public ObjectiveBean(int index, String player, String objective, int state) {
         this.index = index;
         this.player = player;

@@ -1,9 +1,9 @@
 package com.ylinor.storyteller.commands;
 
 import com.ylinor.storyteller.Storyteller;
-import com.ylinor.storyteller.data.beans.DialogBean;
 
-import org.slf4j.Logger;
+import com.ylinor.storyteller.action.DialogAction;
+import com.ylinor.storyteller.data.beans.DialogBean;
 import org.spongepowered.api.command.CommandException;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.CommandSource;
@@ -19,6 +19,9 @@ import javax.inject.Inject;
 import java.util.Optional;
 
 public class OpenBookCommand implements CommandExecutor {
+    @Inject
+    DialogAction dialogAction;
+
     public OpenBookCommand() {
     }
 
@@ -38,10 +41,11 @@ public class OpenBookCommand implements CommandExecutor {
         else {
             return CommandResult.empty();
         }
-        Optional<BookView> bookViewOptional = Storyteller.getBookGenerator().getDialog(dialogId);
-        if (bookViewOptional.isPresent()) {
+        Optional<DialogBean> dialog = dialogAction.getDialog(dialogId);
+        if (dialog.isPresent()) {
+            BookView bookView = Storyteller.getBookGenerator().generateDialog(dialog.get());
             if (src instanceof Player) {
-                ((Player) src).sendBookView(bookViewOptional.get());
+                ((Player) src).sendBookView(bookView);
                 return CommandResult.success();
             } else {
                 src.sendMessage(Text.of("Target must be a player"));

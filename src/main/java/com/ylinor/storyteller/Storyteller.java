@@ -1,11 +1,10 @@
 package com.ylinor.storyteller;
 
 
+import com.ylinor.storyteller.action.DialogAction;
 import com.ylinor.storyteller.commands.OpenBookCommand;
 import com.ylinor.storyteller.commands.ReloadCommand;
-import com.ylinor.storyteller.data.access.ObjectiveDao;
 import com.ylinor.storyteller.data.beans.DialogBean;
-import com.ylinor.storyteller.data.beans.ObjectiveBean;
 import com.ylinor.storyteller.data.handlers.ConfigurationHandler;
 import org.slf4j.Logger;
 import org.spongepowered.api.Sponge;
@@ -60,25 +59,17 @@ public class Storyteller {
     }
 
     @Inject
-    private void setBookGenerator(BookGenerator bookGenerator){ this.bookGenerator= bookGenerator; }
+    private void setBookGenerator(BookGenerator bookGenerator){ this.bookGenerator = bookGenerator; }
     public static BookGenerator getBookGenerator(){
         return bookGenerator;
     }
     @Inject
-    private ObjectiveDao objectiveDao;
+    private DialogAction dialogAction;
 
     @Listener
     public void onServerStart(GameInitializationEvent event) {
         instance = this;
         loadConfig();
-        objectiveDao.createTableIfNotExist();
-        ObjectiveBean objectiveBean = new ObjectiveBean();
-        objectiveBean.setObjective("test");
-        objectiveBean.setPlayer("Spookileserpent");
-        objectiveBean.setState(0);
-        objectiveDao.insert(objectiveBean);
-
-
 
         CommandSpec dialogSpec = CommandSpec.builder()
                 .description(Text.of("Open book command"))
@@ -103,19 +94,20 @@ public class Storyteller {
         Entity entity = event.getTargetEntity();
         Optional<Text> name = entity.get(Keys.DISPLAY_NAME);
         if (name.isPresent()) {
-            Optional<DialogBean> dialog = configurationHandler.getDialogByTrigger(name.get().toPlain());
+            Optional<DialogBean> dialog = dialogAction.getDialogByTrigger(name.get().toPlain(), player.getName());
             if (dialog.isPresent()) {
-                BookView bookView = bookGenerator.getDialog(dialog.get());
+                BookView bookView = bookGenerator.generateDialog(dialog.get());
                 player.sendBookView(bookView);
                 event.setCancelled(true);
             } else {
-                BookView bookView = bookGenerator.getDefaultView(player);
+                BookView bookView = bookGenerator.generateDefaultBook(player);
                 player.sendBookView(bookView);
                 event.setCancelled(true);
             }
 
         }
     }
+
     /**
      * Get the current world
      * @return the world
