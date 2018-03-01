@@ -42,43 +42,45 @@ public class DialogAction {
         for(DialogBean dialog: configurationHandler.getDialogList()) {
             if (dialog.getTrigger().contains(trigger)) {
                 String objective = dialog.getObjective();
-                Pattern pattern = Pattern.compile("([a-zA-Z0-9_$]+)(<|<=|==|>=|>)(\\d)");
-                Matcher matcher = pattern.matcher(objective);
-                if (objective.equals("")) {
-                    return Optional.of(dialog);
-                } else if (matcher.find()) {
-                    Optional<ObjectiveBean> objectiveBean = objectiveDao.getObjectiveByNameAndPlayer(matcher.group(1), playerName);
-                    int objectiveValue = (objectiveBean.isPresent()) ? objectiveBean.get().getState() : 0;
-                    int compareValue = Integer.parseInt(matcher.group(3));
-                    switch (matcher.group(2)) {
-                        case "<":
-                            if (objectiveValue < compareValue) {
-                                return Optional.of(dialog);
+                String[] orConditions = objective.split("\\|\\|");
+                boolean orVerified = false;
+                for (String orCondition : orConditions) {
+                    String[] andConditions = orCondition.split("&&");
+                    boolean andVerified = true;
+                    for (String andCondition : andConditions) {
+                        boolean verified = false;
+                        Pattern pattern = Pattern.compile("([a-zA-Z0-9_$]+)(<|<=|==|>=|>)(\\d)");
+                        Matcher matcher = pattern.matcher(andCondition);
+                        if (matcher.find()) {
+                            Optional<ObjectiveBean> objectiveBean = objectiveDao.getObjectiveByNameAndPlayer(matcher.group(1), playerName);
+                            int objectiveValue = (objectiveBean.isPresent()) ? objectiveBean.get().getState() : 0;
+                            int compareValue = Integer.parseInt(matcher.group(3));
+                            switch (matcher.group(2)) {
+                                case "<":
+                                    verified = (objectiveValue < compareValue);
+                                    break;
+                                case "<=":
+                                    verified = (objectiveValue <= compareValue);
+                                    break;
+                                case "==":
+                                    verified = (objectiveValue == compareValue);
+                                    break;
+                                case ">=":
+                                    verified = (objectiveValue >= compareValue);
+                                    break;
+                                case ">":
+                                    verified = (objectiveValue > compareValue);
+                                    break;
                             }
-                            break;
-                        case "<=":
-                            if (objectiveValue <= compareValue) {
-                                return Optional.of(dialog);
-                            }
-                            break;
-                        case "==":
-                            if (objectiveValue == compareValue) {
-                                return Optional.of(dialog);
-                            }
-                            break;
-                        case ">=":
-                            if (objectiveValue >= compareValue) {
-                                return Optional.of(dialog);
-                            }
-                            break;
-                        case ">":
-                            if (objectiveValue > compareValue) {
-                                return Optional.of(dialog);
-                            }
-                            break;
+                        } else if (!objective.equals("")) {
+                            Storyteller.getLogger().warn("Wrong objective argument : \"" + objective + "\"");
+                        }
+                        andVerified = verified && andVerified;
                     }
-                } else {
-                    Storyteller.getLogger().warn("Wrong objective argument : \"" + objective + "\"");
+                    orVerified = orVerified || andVerified;
+                }
+                if (orVerified) {
+                    return Optional.of(dialog);
                 }
             }
         }
