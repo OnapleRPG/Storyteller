@@ -101,6 +101,9 @@ public class BookGenerator {
                     case GIVE_ITEM:
                         miscellaneousAction.giveItem((Player)commandSource, effectiveAction.getValue());
                         break;
+                    case REMOVE_ITEM:
+                        miscellaneousAction.removeItem((Player)commandSource, effectiveAction.getValue());
+                        break;
                     case SET_OBJECTIVE:
                         objectiveAction.setObjective((Player)commandSource, effectiveAction.getValue());
                         break;

@@ -16,6 +16,8 @@ public class DialogSerializer implements TypeSerializer<DialogBean> {
         dialogBean.setTrigger(value.getNode("trigger").getList(TypeToken.of(String.class)));
         String objective = value.getNode("objective").getString();
         dialogBean.setObjective((objective != null) ? objective : "");
+        String itemsNeeded = value.getNode("items").getString();
+        dialogBean.setItemsNeeded((itemsNeeded != null) ? itemsNeeded : "");
         return dialogBean;
     }
 

@@ -71,4 +71,52 @@ public class ObjectiveAction {
             objectiveDao.insertObjective(objective);
         }
     }
+
+    /**
+     * Check if player fit objective
+     * @param player Player
+     * @param condition Condition containing variable(s)
+     * @return Condition checked
+     */
+    public boolean playerMatchesObjective(Player player, String condition) {
+        String playerName = player.getName();
+        String[] orConditions = condition.split("\\|\\|");
+        boolean orVerified = false;
+        for (String orCondition : orConditions) {
+            String[] andConditions = orCondition.split("&&");
+            boolean andVerified = true;
+            for (String andCondition : andConditions) {
+                boolean verified = false;
+                Pattern pattern = Pattern.compile("([a-zA-Z0-9_$]+)(<|<=|==|>=|>)(\\d)");
+                Matcher matcher = pattern.matcher(andCondition);
+                if (matcher.find()) {
+                    Optional<ObjectiveBean> objectiveBean = objectiveDao.getObjectiveByNameAndPlayer(matcher.group(1), playerName);
+                    int objectiveValue = (objectiveBean.isPresent()) ? objectiveBean.get().getState() : 0;
+                    int compareValue = Integer.parseInt(matcher.group(3));
+                    switch (matcher.group(2)) {
+                        case "<":
+                            verified = (objectiveValue < compareValue);
+                            break;
+                        case "<=":
+                            verified = (objectiveValue <= compareValue);
+                            break;
+                        case "==":
+                            verified = (objectiveValue == compareValue);
+                            break;
+                        case ">=":
+                            verified = (objectiveValue >= compareValue);
+                            break;
+                        case ">":
+                            verified = (objectiveValue > compareValue);
+                            break;
+                    }
+                } else if (!condition.equals("")) {
+                    Storyteller.getLogger().warn("Wrong objective argument : \"" + condition + "\"");
+                }
+                andVerified = verified && andVerified;
+            }
+            orVerified = orVerified || andVerified;
+        }
+        return orVerified || condition.isEmpty();
+    }
 }

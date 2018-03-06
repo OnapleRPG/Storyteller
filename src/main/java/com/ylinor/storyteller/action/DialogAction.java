@@ -5,6 +5,7 @@ import com.ylinor.storyteller.data.access.ObjectiveDao;
 import com.ylinor.storyteller.data.beans.DialogBean;
 import com.ylinor.storyteller.data.beans.ObjectiveBean;
 import com.ylinor.storyteller.data.handlers.ConfigurationHandler;
+import org.spongepowered.api.entity.living.player.Player;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -17,7 +18,9 @@ public class DialogAction {
     @Inject
     private ConfigurationHandler configurationHandler;
     @Inject
-    private ObjectiveDao objectiveDao;
+    private ObjectiveAction objectiveAction;
+    @Inject
+    private MiscellaneousAction miscellaneousAction;
 
     /**
      * Retrieve a dialog by its id
@@ -35,51 +38,15 @@ public class DialogAction {
     /**
      * Retrieve a dialog matching a trigger if player meet requirements
      * @param trigger Name of the NPC that triggers the dialog
-     * @param playerName Name of the player
+     * @param player Player concerned
      * @return Optional dialog
      */
-    public Optional<DialogBean> getDialogByTrigger(String trigger, String playerName){
+    public Optional<DialogBean> getDialogByTrigger(String trigger, Player player){
         for(DialogBean dialog: configurationHandler.getDialogList()) {
             if (dialog.getTrigger().contains(trigger)) {
                 String objective = dialog.getObjective();
-                String[] orConditions = objective.split("\\|\\|");
-                boolean orVerified = false;
-                for (String orCondition : orConditions) {
-                    String[] andConditions = orCondition.split("&&");
-                    boolean andVerified = true;
-                    for (String andCondition : andConditions) {
-                        boolean verified = false;
-                        Pattern pattern = Pattern.compile("([a-zA-Z0-9_$]+)(<|<=|==|>=|>)(\\d)");
-                        Matcher matcher = pattern.matcher(andCondition);
-                        if (matcher.find()) {
-                            Optional<ObjectiveBean> objectiveBean = objectiveDao.getObjectiveByNameAndPlayer(matcher.group(1), playerName);
-                            int objectiveValue = (objectiveBean.isPresent()) ? objectiveBean.get().getState() : 0;
-                            int compareValue = Integer.parseInt(matcher.group(3));
-                            switch (matcher.group(2)) {
-                                case "<":
-                                    verified = (objectiveValue < compareValue);
-                                    break;
-                                case "<=":
-                                    verified = (objectiveValue <= compareValue);
-                                    break;
-                                case "==":
-                                    verified = (objectiveValue == compareValue);
-                                    break;
-                                case ">=":
-                                    verified = (objectiveValue >= compareValue);
-                                    break;
-                                case ">":
-                                    verified = (objectiveValue > compareValue);
-                                    break;
-                            }
-                        } else if (!objective.equals("")) {
-                            Storyteller.getLogger().warn("Wrong objective argument : \"" + objective + "\"");
-                        }
-                        andVerified = verified && andVerified;
-                    }
-                    orVerified = orVerified || andVerified;
-                }
-                if (orVerified) {
+                String itemsNeeded = dialog.getItemsNeeded();
+                if (objectiveAction.playerMatchesObjective(player, objective) && miscellaneousAction.hasItems(player, itemsNeeded)) {
                     return Optional.of(dialog);
                 }
             }

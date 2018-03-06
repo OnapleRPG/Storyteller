@@ -95,7 +95,7 @@ public class Storyteller {
         Optional<Text> name = entity.get(Keys.DISPLAY_NAME);
         String entityType = entity.getType().getName();
         if (entityType.equals("villager") && name.isPresent()) {
-            Optional<DialogBean> dialog = dialogAction.getDialogByTrigger(name.get().toPlain(), player.getName());
+            Optional<DialogBean> dialog = dialogAction.getDialogByTrigger(name.get().toPlain(), player);
             if (dialog.isPresent()) {
                 BookView bookView = bookGenerator.generateDialog(dialog.get());
                 player.sendBookView(bookView);

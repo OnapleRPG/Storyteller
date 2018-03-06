@@ -10,6 +10,7 @@ public class DialogBean {
     private List<PageBean> pages;
     private List<String> trigger;
     private String objective;
+    private String itemsNeeded;
 
     public List<String> getTrigger() {
         return trigger;
@@ -37,6 +38,13 @@ public class DialogBean {
     }
     public void setObjective(String objective) {
         this.objective = objective;
+    }
+
+    public String getItemsNeeded() {
+        return itemsNeeded;
+    }
+    public void setItemsNeeded(String itemsNeeded) {
+        this.itemsNeeded = itemsNeeded;
     }
 
     public DialogBean(int id) {
