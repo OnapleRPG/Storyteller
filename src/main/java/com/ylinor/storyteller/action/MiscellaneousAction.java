@@ -80,7 +80,7 @@ public class MiscellaneousAction {
         Optional<ItemStack> optionalItem = convertStringToItemStack(itemString);
         if (optionalItem.isPresent()) {
             ItemStack item = optionalItem.get();
-            player.getInventory().query(QueryOperationTypes.INVENTORY_TYPE.of(InventoryRow.class)).poll();
+            player.getInventory().query(QueryOperationTypes.INVENTORY_TYPE.of(InventoryRow.class)).query(QueryOperationTypes.ITEM_STACK_IGNORE_QUANTITY.of(item)).poll(item.getQuantity());
         }
     }
 
