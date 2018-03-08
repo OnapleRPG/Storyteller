@@ -77,3 +77,10 @@ dialogs = [
    	}
 ]
 ```
+Here is the list of the available button actions and there arguments :  
+- **OPEN_DIALOG** : Open the dialog with the given *id* (given as argument)
+- **EXECUTE_COMMAND** : Execute the *command* given as argument
+- **GIVE_ITEM** : Give an item to the player. Fill with an item name or itemizer id, followed by a space and the amount you want to give
+- **REMOVE_ITEM** : Same as above, but removing from the player's inventory
+- **TELEPORT** : Teleport to the given *location*. Use X Y Z separated with space
+- **SET_OBJECTIVE** : Edit an *objective*. You can use the name you want and the operators *=*, *+=*, *-=* (ex : dialog_count+=1)
