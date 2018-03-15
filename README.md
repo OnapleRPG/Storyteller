@@ -55,7 +55,7 @@ dialogs = [
 	{
    		id = 2,
    		trigger = ["Steve the villager"],
-   		objective : "steve_asking_wood>=1",
+   		objective : "steve_asking_wood==1",
    		items: "minecraft:log 5",
    		pages = [
    			{
@@ -65,11 +65,58 @@ dialogs = [
    						text : "Here, take my wood",
    						color: "BLUE",
    						actions : [
+   						    {
+   						        name: "SET_OBJECTIVE",
+   						        arg: "steve_asking_wood=2"
+   						    },
    							{
    								name: "REMOVE_ITEM",
    								arg: "minecraft:log 5"
+   							},
+   							{
+   							    name: "START_KILL_COUNT",
+   							    arg:"Zombie"
    							}
    						]
+   					}
+   				]
+   			}
+   		]
+   	},
+     {
+         id = 3,
+         trigger = ["Steve the villager"],
+         objective : "steve_asking_wood==2",
+         killcount: "Zombie>=5",
+         pages = [
+             {
+                 text : "I'm grateful for the wood, but I'd also like you to kill some zombies.",
+                 buttons: [
+                     {
+                         text : "> I killed some zombies !",
+                         color: "RED",
+                         actions : [
+                            {
+                                name: "SET_OBJECTIVE",
+                                arg: "steve_asking_wood=3"
+                            }
+                         ]
+                     }
+                 ]
+             }
+         ]
+     },
+	{
+   		id = 4,
+   		trigger = ["Steve the villager"],
+   		objective : "steve_asking_wood==2",
+   		pages = [
+   			{
+   				text : "I'm grateful for the wood, but I'd also like you to kill 5 zombies.",
+   				buttons: [
+   					{
+   						text : "> Alright then",
+   						color: "BLACK"
    					}
    				]
    			}
@@ -84,3 +131,5 @@ Here is the list of the available button actions and there arguments :
 - **REMOVE_ITEM** : Same as above, but removing from the player's inventory
 - **TELEPORT** : Teleport to the given *location*. Use X Y Z separated with space
 - **SET_OBJECTIVE** : Edit an *objective*. You can use the name you want and the operators *=*, *+=*, *-=* (ex : dialog_count+=1)
+- **START_KILL_COUNT** : Start a counter for a given NPC and a given monster. Takes a monster name or type as argument.
+- **STOP_KILL_COUNT** : Stop a counter for cleaning. Takes a monster name as argument, and use the NPC name (trigger).

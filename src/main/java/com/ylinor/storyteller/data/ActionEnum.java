@@ -6,5 +6,7 @@ public enum ActionEnum {
     GIVE_ITEM,
     REMOVE_ITEM,
     TELEPORT,
-    SET_OBJECTIVE
+    SET_OBJECTIVE,
+    START_KILL_COUNT,
+    STOP_KILL_COUNT
 }

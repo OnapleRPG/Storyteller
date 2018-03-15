@@ -17,7 +17,8 @@ import java.util.Optional;
 public class ObjectiveDao {
     @Inject
     private DatabaseHandler databaseHandler;
-    public ObjectiveDao() { }
+    public ObjectiveDao() {
+    }
 
     /**
      * Generate database tables if they do not exist

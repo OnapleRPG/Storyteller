@@ -1,6 +1,7 @@
 package com.ylinor.storyteller;
 
 import com.ylinor.storyteller.action.DialogAction;
+import com.ylinor.storyteller.action.KillCountAction;
 import com.ylinor.storyteller.action.MiscellaneousAction;
 import com.ylinor.storyteller.action.ObjectiveAction;
 import com.ylinor.storyteller.data.ActionEnum;
@@ -27,6 +28,8 @@ public class BookGenerator {
     @Inject
     private ObjectiveAction objectiveAction;
     @Inject
+    private KillCountAction killCountAction;
+    @Inject
     private MiscellaneousAction miscellaneousAction;
 
     /**
@@ -37,7 +40,7 @@ public class BookGenerator {
     public BookView generateDialog(DialogBean dialog){
         BookView.Builder bookviewBuilder = BookView.builder();
         for (PageBean pageBean : dialog.getPages()) {
-            bookviewBuilder.addPage(generatePage(pageBean));
+            bookviewBuilder.addPage(generatePage(pageBean, dialog.getTrigger()));
         }
         return bookviewBuilder.build();
     }
@@ -47,12 +50,12 @@ public class BookGenerator {
      * @param page Page data
      * @return Text to display (with optional buttons)
      */
-    private Text generatePage(PageBean page){
+    private Text generatePage(PageBean page, List<String> npcNames){
         Text.Builder text = Text.builder(page.getMessage() + "\n");
         if (!page.getButtonBeanList().isEmpty()) {
             List<ButtonBean> buttons = page.getButtonBeanList();
             for (ButtonBean buttonBean : buttons) {
-                text.append(generateButton(buttonBean));
+                text.append(generateButton(buttonBean, npcNames));
             }
         }
         return text.build();
@@ -75,7 +78,7 @@ public class BookGenerator {
      * @param buttonBean Button data
      * @return Printed button
      */
-    private Text generateButton(ButtonBean buttonBean) {
+    private Text generateButton(ButtonBean buttonBean, List<String> npcNames) {
         Text.Builder textBuilder = Text.builder(buttonBean.getText());
         Optional<TextColor> textColor = game.getRegistry().getType(TextColor.class,buttonBean.getColor().toUpperCase());
         if (textColor.isPresent()) {
@@ -86,6 +89,13 @@ public class BookGenerator {
         for(ActionBean action: actions) {
             effectiveActions.put(ActionEnum.valueOf(action.getName()), action.getArg());
         }
+        // Concatenate NPC names
+        String npcNamesString = "";
+        for (String npcName : npcNames) {
+            npcNamesString += npcName;
+        }
+        final String npcNameStringFinal = npcNamesString;
+        // Set button action
         textBuilder.onClick(TextActions.executeCallback(commandSource-> {
             for (Map.Entry<ActionEnum, String> effectiveAction : effectiveActions.entrySet()) {
                 switch (effectiveAction.getKey()) {
@@ -106,6 +116,12 @@ public class BookGenerator {
                         break;
                     case SET_OBJECTIVE:
                         objectiveAction.setObjective((Player)commandSource, effectiveAction.getValue());
+                        break;
+                    case START_KILL_COUNT:
+                        killCountAction.startKillCount((Player)commandSource, npcNameStringFinal, effectiveAction.getValue());
+                        break;
+                    case STOP_KILL_COUNT:
+                        killCountAction.stopKillCount((Player)commandSource, npcNameStringFinal, effectiveAction.getValue());
                         break;
                 }
             }

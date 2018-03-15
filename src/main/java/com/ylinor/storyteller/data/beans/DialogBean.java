@@ -11,6 +11,7 @@ public class DialogBean {
     private List<String> trigger;
     private String objective;
     private String itemsNeeded;
+    private String killCount;
 
     public List<String> getTrigger() {
         return trigger;
@@ -45,6 +46,13 @@ public class DialogBean {
     }
     public void setItemsNeeded(String itemsNeeded) {
         this.itemsNeeded = itemsNeeded;
+    }
+
+    public String getKillCount() {
+        return killCount;
+    }
+    public void setKillCount(String killCount) {
+        this.killCount = killCount;
     }
 
     public DialogBean(int id) {

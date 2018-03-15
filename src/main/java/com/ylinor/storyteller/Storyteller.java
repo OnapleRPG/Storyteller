@@ -4,6 +4,8 @@ package com.ylinor.storyteller;
 import com.ylinor.storyteller.action.DialogAction;
 import com.ylinor.storyteller.commands.OpenBookCommand;
 import com.ylinor.storyteller.commands.ReloadCommand;
+import com.ylinor.storyteller.data.access.KillCountDao;
+import com.ylinor.storyteller.data.access.ObjectiveDao;
 import com.ylinor.storyteller.data.beans.DialogBean;
 import com.ylinor.storyteller.data.handlers.ConfigurationHandler;
 import org.slf4j.Logger;
@@ -13,8 +15,11 @@ import org.spongepowered.api.command.spec.CommandSpec;
 import org.spongepowered.api.config.DefaultConfig;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.entity.Entity;
+import org.spongepowered.api.entity.living.Living;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
+import org.spongepowered.api.event.cause.entity.damage.source.EntityDamageSource;
+import org.spongepowered.api.event.entity.DestructEntityEvent;
 import org.spongepowered.api.event.entity.InteractEntityEvent;
 import org.spongepowered.api.event.filter.cause.Root;
 import org.spongepowered.api.event.game.state.GameInitializationEvent;
@@ -47,6 +52,11 @@ public class Storyteller {
         configurationHandler.readDialogsConfiguration(configurationHandler.loadConfiguration(defaultConfig+""));
     }
 
+    @Inject
+    private ObjectiveDao objectiveDao;
+    @Inject
+    private KillCountDao killCountDao;
+
     private static BookGenerator bookGenerator;
 
     private static Logger logger;
@@ -70,6 +80,8 @@ public class Storyteller {
     public void onServerStart(GameInitializationEvent event) {
         instance = this;
         loadConfig();
+        objectiveDao.createTableIfNotExist();
+        killCountDao.createTableIfNotExist();
 
         CommandSpec dialogSpec = CommandSpec.builder()
                 .description(Text.of("Open book command"))
@@ -89,6 +101,11 @@ public class Storyteller {
         logger.info("STORYTELLER initialized.");
     }
 
+    /**
+     * Handle villager interaction for dialog
+     * @param event Event fired
+     * @param player Player who originated the event
+     */
     @Listener
     public void onInteract(InteractEntityEvent.Secondary event, @Root Player player) {
         Entity entity = event.getTargetEntity();
@@ -106,6 +123,30 @@ public class Storyteller {
                 event.setCancelled(true);
             }
 
+        }
+    }
+
+    /**
+     * Handle entity death for kill counter
+     * @param event Event fired
+     */
+    @Listener
+    public void onEntityDeath(DestructEntityEvent.Death event) {
+        final Entity entity = event.getTargetEntity();
+        Optional<EntityDamageSource> optDamageSource = event.getCause().first(EntityDamageSource.class);
+        if (optDamageSource.isPresent()) {
+            EntityDamageSource damageSource = optDamageSource.get();
+            Entity killer = damageSource.getSource();
+            if (killer instanceof Player) {
+                Player player = (Player) killer;
+                String entityName;
+                if (entity.get(Keys.DISPLAY_NAME).isPresent()) {
+                    entityName = entity.get(Keys.DISPLAY_NAME).get().toPlain();
+                } else {
+                    entityName = entity.getType().getName();
+                }
+                killCountDao.incrementKillCount(player.getName(), entityName);
+            }
         }
     }
 

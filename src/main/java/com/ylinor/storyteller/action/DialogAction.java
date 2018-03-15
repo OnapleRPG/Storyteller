@@ -21,6 +21,8 @@ public class DialogAction {
     private ObjectiveAction objectiveAction;
     @Inject
     private MiscellaneousAction miscellaneousAction;
+    @Inject
+    private KillCountAction killCountAction;
 
     /**
      * Retrieve a dialog by its id
@@ -46,7 +48,8 @@ public class DialogAction {
             if (dialog.getTrigger().contains(trigger)) {
                 String objective = dialog.getObjective();
                 String itemsNeeded = dialog.getItemsNeeded();
-                if (objectiveAction.playerMatchesObjective(player, objective) && miscellaneousAction.hasItems(player, itemsNeeded)) {
+                String killCountObjective = dialog.getKillCount();
+                if (objectiveAction.playerMatchesObjective(player, objective) && miscellaneousAction.hasItems(player, itemsNeeded) && killCountAction.playerMatchesKillCount(player, trigger, killCountObjective)) {
                     return Optional.of(dialog);
                 }
             }

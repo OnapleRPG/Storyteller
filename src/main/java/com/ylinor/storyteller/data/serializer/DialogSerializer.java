@@ -18,6 +18,8 @@ public class DialogSerializer implements TypeSerializer<DialogBean> {
         dialogBean.setObjective((objective != null) ? objective : "");
         String itemsNeeded = value.getNode("items").getString();
         dialogBean.setItemsNeeded((itemsNeeded != null) ? itemsNeeded : "");
+        String killCount = value.getNode("killcount").getString();
+        dialogBean.setKillCount((killCount != null) ? killCount : "");
         return dialogBean;
     }
 
