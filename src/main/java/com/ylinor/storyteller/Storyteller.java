@@ -2,8 +2,10 @@ package com.ylinor.storyteller;
 
 
 import com.ylinor.storyteller.action.DialogAction;
+import com.ylinor.storyteller.commands.GetObjectiveCommand;
 import com.ylinor.storyteller.commands.OpenBookCommand;
 import com.ylinor.storyteller.commands.ReloadCommand;
+import com.ylinor.storyteller.commands.SetObjectivesCommand;
 import com.ylinor.storyteller.data.access.KillCountDao;
 import com.ylinor.storyteller.data.access.ObjectiveDao;
 import com.ylinor.storyteller.data.beans.DialogBean;
@@ -52,8 +54,16 @@ public class Storyteller {
         configurationHandler.readDialogsConfiguration(configurationHandler.loadConfiguration(defaultConfig+""));
     }
 
+
+    private static ObjectiveDao objectiveDao;
     @Inject
-    private ObjectiveDao objectiveDao;
+    private void setObjectiveDao(ObjectiveDao objectiveDao) {
+        Storyteller.objectiveDao = objectiveDao;
+    }
+    public static ObjectiveDao getObjectiveDao() {
+        return objectiveDao;
+    }
+
     @Inject
     private KillCountDao killCountDao;
 
@@ -95,9 +105,26 @@ public class Storyteller {
                 .executor(new ReloadCommand())
                 .build();
 
+        CommandSpec getObjectiveSpec = CommandSpec.builder()
+                .description(Text.of("Get player's actual objectives state"))
+                .permission("storyteller.command.objectives")
+                .arguments(GenericArguments.onlyOne(GenericArguments.player(Text.of("player"))))
+                .executor(new GetObjectiveCommand())
+                .build();
+
+        CommandSpec setObjectiveSpec = CommandSpec.builder()
+                .description(Text.of("set player's objectives state"))
+                .permission("storyteller.command.objectives")
+                .arguments(GenericArguments.onlyOne(GenericArguments.player(Text.of("player")))
+                        ,GenericArguments.onlyOne(GenericArguments.string(Text.of("objective")))
+                        ,GenericArguments.onlyOne(GenericArguments.integer(Text.of("value"))))
+                .executor(new SetObjectivesCommand())
+                .build();
+
         Sponge.getCommandManager().register(this, dialogSpec, "dialog");
         Sponge.getCommandManager().register(this, reloadSpec, "reload-storyteller");
-
+        Sponge.getCommandManager().register(this, getObjectiveSpec, "get-objectives");
+        Sponge.getCommandManager().register(this, setObjectiveSpec, "set-objective");
         logger.info("STORYTELLER initialized.");
     }
 

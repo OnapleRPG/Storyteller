@@ -10,6 +10,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -100,5 +102,27 @@ public class ObjectiveDao {
             databaseHandler.closeConnection(connection,statement,null);
         }
         return objective;
+    }
+
+    public List<ObjectiveBean> getObjectiveByPlayer(String player) {
+        List<ObjectiveBean> objectiveList = new ArrayList<>();
+        String query = "SELECT player, objective, state FROM objective WHERE player = ?";
+        Connection connection = null;
+        PreparedStatement statement = null;
+        try {
+            connection = databaseHandler.getDatasource().getConnection();
+            statement = connection.prepareStatement(query);
+            statement.setString(1, player);
+            ResultSet results = statement.executeQuery();
+
+            while (results.next()) {
+                 objectiveList.add(new ObjectiveBean(results.getString("player"), results.getString("objective"), results.getInt("state")));
+            }
+        } catch (SQLException e) {
+            Storyteller.getLogger().error(e.getSQLState());
+        } finally {
+            databaseHandler.closeConnection(connection,statement,null);
+        }
+        return objectiveList;
     }
 }

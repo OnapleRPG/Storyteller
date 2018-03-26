@@ -87,6 +87,7 @@ public class BookGenerator {
         List<ActionBean> actions = buttonBean.getActions();
         Map<ActionEnum, String> effectiveActions = new HashMap<>();
         for(ActionBean action: actions) {
+            Storyteller.getLogger().info(action.getName());
             effectiveActions.put(ActionEnum.valueOf(action.getName()), action.getArg());
         }
         // Concatenate NPC names
