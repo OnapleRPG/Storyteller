@@ -44,14 +44,14 @@ public class Storyteller {
     }
 
     @Inject
-    @DefaultConfig(sharedRoot = true)
+    @DefaultConfig(sharedRoot = false)
     private Path defaultConfig;
 
     @Inject
     private ConfigurationHandler configurationHandler;
 
     public void loadConfig() {
-        configurationHandler.readDialogsConfiguration(configurationHandler.loadConfiguration(defaultConfig+""));
+        configurationHandler.readDialogsConfiguration(configurationHandler.loadConfiguration(defaultConfig + "/dialogs.conf"));
     }
 
 
