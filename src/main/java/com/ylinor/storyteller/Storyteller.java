@@ -10,10 +10,12 @@ import com.ylinor.storyteller.data.access.KillCountDao;
 import com.ylinor.storyteller.data.access.ObjectiveDao;
 import com.ylinor.storyteller.data.beans.DialogBean;
 import com.ylinor.storyteller.data.handlers.ConfigurationHandler;
+import ninja.leaping.configurate.objectmapping.ObjectMappingException;
 import org.slf4j.Logger;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.args.GenericArguments;
 import org.spongepowered.api.command.spec.CommandSpec;
+import org.spongepowered.api.config.ConfigDir;
 import org.spongepowered.api.config.DefaultConfig;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.entity.Entity;
@@ -44,14 +46,16 @@ public class Storyteller {
     }
 
     @Inject
-    @DefaultConfig(sharedRoot = false)
+    @ConfigDir(sharedRoot=true)
     private Path defaultConfig;
 
     @Inject
     private ConfigurationHandler configurationHandler;
 
-    public void loadConfig() {
-        configurationHandler.readDialogsConfiguration(configurationHandler.loadConfiguration(defaultConfig + "/dialogs.conf"));
+    public int loadConfig() throws ObjectMappingException {
+
+          return configurationHandler.readDialogsConfiguration(configurationHandler.loadConfiguration(defaultConfig + "/storyteller/dialogs.conf"));
+
     }
 
 
@@ -89,7 +93,11 @@ public class Storyteller {
     @Listener
     public void onServerStart(GameInitializationEvent event) {
         instance = this;
-        loadConfig();
+        try {
+          getLogger().info("Dialogues configuration reloaded." +loadConfig()+ "Dialogs realoaded");
+        } catch (ObjectMappingException e) {
+            e.printStackTrace();
+        }
         objectiveDao.createTableIfNotExist();
         killCountDao.createTableIfNotExist();
 

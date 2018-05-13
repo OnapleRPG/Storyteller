@@ -39,15 +39,15 @@ public class ConfigurationHandler {
      * Read storyteller configuration and interpret it
      * @param configurationNode ConfigurationNode to read from
      */
-    public void readDialogsConfiguration(CommentedConfigurationNode configurationNode){
+    public int readDialogsConfiguration(CommentedConfigurationNode configurationNode) throws ObjectMappingException {
         dialogList = new ArrayList<>();
         TypeSerializers.getDefaultSerializers().registerType(TypeToken.of(DialogBean.class), new DialogSerializer());
-        try {
+
             dialogList = configurationNode.getNode("dialogs").getList(TypeToken.of(DialogBean.class));
-        } catch (ObjectMappingException e) {
-            Storyteller.getLogger().error("Error while reading configuration 'storyteller' : " + e.getMessage());
-        }
-        Storyteller.getLogger().info(dialogList.size() + " dialogs loaded.");
+
+           // Storyteller.getLogger().error("Error while reading configuration 'storyteller' : " + e.getMessage());
+
+        return dialogList.size();
     }
 
     /**
@@ -55,7 +55,7 @@ public class ConfigurationHandler {
      * @param configName Name of the configuration in the configuration folder
      * @return Configuration ready to be used
      */
-    public  CommentedConfigurationNode loadConfiguration(String configName) {
+    public CommentedConfigurationNode loadConfiguration(String configName) {
         TypeSerializerCollection serializers = TypeSerializers.getDefaultSerializers().newChild();
         serializers.registerType(TypeToken.of(ActionBean.class), new ActionSerializer());
         serializers.registerType(TypeToken.of(ButtonBean.class), new ButtonSerializer());
