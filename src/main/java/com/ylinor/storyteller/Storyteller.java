@@ -13,6 +13,7 @@ import com.ylinor.storyteller.data.handlers.ConfigurationHandler;
 import ninja.leaping.configurate.objectmapping.ObjectMappingException;
 import org.slf4j.Logger;
 import org.spongepowered.api.Sponge;
+import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.command.args.GenericArguments;
 import org.spongepowered.api.command.spec.CommandSpec;
 import org.spongepowered.api.config.ConfigDir;
@@ -54,7 +55,7 @@ public class Storyteller {
 
     public int loadConfig() throws ObjectMappingException {
 
-          return configurationHandler.readDialogsConfiguration(configurationHandler.loadConfiguration(defaultConfig + "/storyteller/dialogs.conf"));
+          return configurationHandler.readDialogsConfiguration(configurationHandler.loadConfiguration(defaultConfig + "/storyteller/"));
 
     }
 
