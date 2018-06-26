@@ -33,7 +33,7 @@ public class ReloadCommand implements CommandExecutor {
         try {
             src.sendMessage(
                     Text.builder("Dialogues configuration reloaded.").color(TextColors.GREEN)
-                    .append(Text.builder(Storyteller.getInstance().loadConfig()+"").color(TextColors.GOLD).build())
+                    .append(Text.builder(" " + Storyteller.getInstance().loadConfig() + " ").color(TextColors.GOLD).build())
                     .append( Text.builder("dialogues loaded.").color(TextColors.GREEN).build()).build()
             );
 

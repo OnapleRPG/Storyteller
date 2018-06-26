@@ -7,6 +7,7 @@ import com.ylinor.storyteller.action.ObjectiveAction;
 import com.ylinor.storyteller.data.ActionEnum;
 import com.ylinor.storyteller.data.beans.*;
 
+import org.apache.commons.lang3.EnumUtils;
 import org.spongepowered.api.Game;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.text.BookView;
@@ -100,10 +101,16 @@ public class BookGenerator {
         if (textColor.isPresent()) {
             textBuilder.color(textColor.get());
         }
+        // Iterate button actions
         List<ActionBean> actions = buttonBean.getActions();
         Map<ActionEnum, String> effectiveActions = new HashMap<>();
         for(ActionBean action: actions) {
-            effectiveActions.put(ActionEnum.valueOf(action.getName()), action.getArg());
+            String[] actionNameSplitted = action.getName().split(" ", 2);
+            if (EnumUtils.isValidEnum(ActionEnum.class, action.getName())) {
+                effectiveActions.put(ActionEnum.valueOf(action.getName()), action.getArg());
+            } else if (EnumUtils.isValidEnum(ActionEnum.class, actionNameSplitted[0]) && actionNameSplitted.length > 1) {
+                effectiveActions.put(ActionEnum.valueOf(actionNameSplitted[0]), actionNameSplitted[1]);
+            }
         }
         // Concatenate NPC names
         String npcNamesString = "";
