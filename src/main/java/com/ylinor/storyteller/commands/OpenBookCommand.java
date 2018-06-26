@@ -38,19 +38,23 @@ public class OpenBookCommand implements CommandExecutor {
 
         if (args.getOne("dialog").isPresent())
             dialogId = args.<Integer>getOne("dialog").get();
+
         else {
             return CommandResult.empty();
         }
-
+        Optional<Player> playerOpt = args.getOne("player");
        try {
            BookView bookView = Storyteller.getBookGenerator().generateDialog(dialogId);
-           if (src instanceof Player) {
-               ((Player) src).sendBookView(bookView);
-               return CommandResult.success();
-           } else {
-               src.sendMessage(Text.of("Target must be a player"));
+           if(playerOpt.isPresent()){
+               playerOpt.get().sendBookView(bookView);
+           }else {
+               if (src instanceof Player) {
+                   ((Player) src).sendBookView(bookView);
+                   return CommandResult.success();
+               } else {
+                   src.sendMessage(Text.of("Target must be a player"));
+               }
            }
-
        }
         catch (Exception e){
                 src.sendMessage(Text.of("Dialog not found"));
