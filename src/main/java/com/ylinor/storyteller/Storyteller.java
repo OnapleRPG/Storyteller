@@ -13,14 +13,12 @@ import com.ylinor.storyteller.data.handlers.ConfigurationHandler;
 import ninja.leaping.configurate.objectmapping.ObjectMappingException;
 import org.slf4j.Logger;
 import org.spongepowered.api.Sponge;
-import org.spongepowered.api.command.CommandSource;
+import org.spongepowered.api.asset.Asset;
 import org.spongepowered.api.command.args.GenericArguments;
 import org.spongepowered.api.command.spec.CommandSpec;
 import org.spongepowered.api.config.ConfigDir;
-import org.spongepowered.api.config.DefaultConfig;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.entity.Entity;
-import org.spongepowered.api.entity.living.Living;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.cause.entity.damage.source.EntityDamageSource;
@@ -35,11 +33,14 @@ import org.spongepowered.api.world.World;
 
 import javax.inject.Inject;
 
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Optional;
 
 
-@Plugin(id = "storyteller", name = "Storyteller", version = "0.0.1")
+@Plugin(id = "storyteller", name = "Storyteller", version = "0.1.1")
 public class Storyteller {
     private static Storyteller instance;
     public static Storyteller getInstance() {
@@ -48,16 +49,35 @@ public class Storyteller {
 
     @Inject
     @ConfigDir(sharedRoot=true)
-    private Path defaultConfig;
+    private Path configDir;
+
+
+
 
     @Inject
     private ConfigurationHandler configurationHandler;
 
     public int loadConfig() throws ObjectMappingException {
-
-          return configurationHandler.readDialogsConfiguration(configurationHandler.loadConfiguration(defaultConfig + "/storyteller/"));
+          initDefaultConfig();
+          return configurationHandler.readDialogsConfiguration(configurationHandler.loadConfiguration(configDir + "/storyteller/"));
 
     }
+    public void initDefaultConfig(){
+        if (Files.notExists(Paths.get(configDir+"/storyteller/"))){
+            Optional<Asset> dialogDefaultConfigFile = Sponge.getPluginManager().getPlugin("storyteller").get().getAsset("example.conf");
+            getLogger().info("No dialogs files found in /config/storryteller, a default config will be loaded");
+            if (dialogDefaultConfigFile.isPresent()) {
+                try {
+                    dialogDefaultConfigFile.get().copyToDirectory(Paths.get(configDir+"/storyteller/"));
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            } else {
+                logger.warn(" default config not found");
+            }
+        }
+    }
+
 
 
     private static ObjectiveDao objectiveDao;
@@ -95,7 +115,7 @@ public class Storyteller {
     public void onServerStart(GameInitializationEvent event) {
         instance = this;
         try {
-          getLogger().info("Dialogues configuration reloaded." +loadConfig()+ "Dialogs realoaded");
+          getLogger().info("Dialogues configuration loaded." +loadConfig()+ "Dialogs loaded");
         } catch (ObjectMappingException e) {
             e.printStackTrace();
         }

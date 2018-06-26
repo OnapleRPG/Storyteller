@@ -45,6 +45,14 @@ public class BookGenerator {
         return bookviewBuilder.build();
     }
 
+    public BookView generateDialog(int identifier) throws Exception {
+        Optional<DialogBean> dialogOpt = dialogAction.getDialog(identifier);
+        if(dialogOpt.isPresent()){
+            return generateDialog(dialogOpt.get());
+        }
+        throw new Exception("Dialog Id not Found");
+    }
+
     /**
      * Generate the text to print inside a page
      * @param page Page data
