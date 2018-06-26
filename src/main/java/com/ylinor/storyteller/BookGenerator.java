@@ -14,6 +14,7 @@ import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.action.TextActions;
 import org.spongepowered.api.text.format.TextColor;
 import org.spongepowered.api.text.format.TextColors;
+import org.spongepowered.api.text.serializer.TextSerializers;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -59,14 +60,17 @@ public class BookGenerator {
      * @return Text to display (with optional buttons)
      */
     private Text generatePage(PageBean page, List<String> npcNames){
-        Text.Builder text = Text.builder(page.getMessage() + "\n");
+        Text coloredContent = TextSerializers.FORMATTING_CODE.deserialize(page.getMessage());
+        Text.Builder textBuilder = Text.builder();
+        textBuilder.append(coloredContent);
+        textBuilder.append(Text.of("\n"));
         if (!page.getButtonBeanList().isEmpty()) {
             List<ButtonBean> buttons = page.getButtonBeanList();
             for (ButtonBean buttonBean : buttons) {
-                text.append(generateButton(buttonBean, npcNames));
+                textBuilder.append(generateButton(buttonBean, npcNames));
             }
         }
-        return text.build();
+        return textBuilder.build();
     }
 
     /**
@@ -87,7 +91,11 @@ public class BookGenerator {
      * @return Printed button
      */
     private Text generateButton(ButtonBean buttonBean, List<String> npcNames) {
-        Text.Builder textBuilder = Text.builder(buttonBean.getText());
+        Text coloredContent = TextSerializers.FORMATTING_CODE.deserialize(buttonBean.getText());
+        Text.Builder textBuilder = Text.builder();
+        textBuilder.append(coloredContent);
+        textBuilder.append(Text.of("\n"));
+        // Deprecated color system
         Optional<TextColor> textColor = game.getRegistry().getType(TextColor.class,buttonBean.getColor().toUpperCase());
         if (textColor.isPresent()) {
             textBuilder.color(textColor.get());
