@@ -30,11 +30,12 @@ public class DialogAction {
      * @return Dialog, if exists
      */
     public Optional<DialogBean> getDialog(int index){
-        try {
-            return Optional.of(configurationHandler.getDialogList().get(index));
-        } catch (IndexOutOfBoundsException e){
-            return Optional.empty();
+        for(DialogBean dialog : configurationHandler.getDialogList()) {
+            if (dialog.getId() == index) {
+                return Optional.of(dialog);
+            }
         }
+        return Optional.empty();
     }
 
     /**

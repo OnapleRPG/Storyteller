@@ -76,7 +76,7 @@ public class BookGenerator {
      */
     public BookView generateDefaultBook(Player player){
         BookView.Builder bookviewBuilder = BookView.builder();
-        Text.Builder text = Text.builder("Salutations, " + player.getName() + ".");
+        Text.Builder text = Text.builder("Greetings, " + player.getName() + ".");
         bookviewBuilder.addPage(text.build());
         return bookviewBuilder.build();
     }
@@ -95,7 +95,6 @@ public class BookGenerator {
         List<ActionBean> actions = buttonBean.getActions();
         Map<ActionEnum, String> effectiveActions = new HashMap<>();
         for(ActionBean action: actions) {
-            Storyteller.getLogger().info(action.getName());
             effectiveActions.put(ActionEnum.valueOf(action.getName()), action.getArg());
         }
         // Concatenate NPC names
