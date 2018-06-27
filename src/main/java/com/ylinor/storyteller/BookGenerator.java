@@ -97,9 +97,11 @@ public class BookGenerator {
         textBuilder.append(coloredContent);
         textBuilder.append(Text.of("\n"));
         // Deprecated color system
-        Optional<TextColor> textColor = game.getRegistry().getType(TextColor.class,buttonBean.getColor().toUpperCase());
-        if (textColor.isPresent()) {
-            textBuilder.color(textColor.get());
+        if (buttonBean.getColor() != null) {
+            Optional<TextColor> textColor = game.getRegistry().getType(TextColor.class,buttonBean.getColor().toUpperCase());
+            if (textColor.isPresent()) {
+                textBuilder.color(textColor.get());
+            }
         }
         // Iterate button actions
         List<ActionBean> actions = buttonBean.getActions();

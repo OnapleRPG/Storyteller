@@ -115,7 +115,7 @@ public class Storyteller {
     public void onServerStart(GameInitializationEvent event) {
         instance = this;
         try {
-          getLogger().info("Dialogues configuration loaded." +loadConfig()+ "Dialogs loaded");
+          getLogger().info("Dialogs configuration loaded. " +loadConfig()+ " dialogs loaded");
         } catch (ObjectMappingException e) {
             e.printStackTrace();
         }

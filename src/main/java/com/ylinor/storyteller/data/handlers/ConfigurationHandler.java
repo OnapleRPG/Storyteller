@@ -27,6 +27,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Singleton
@@ -50,9 +51,20 @@ public class ConfigurationHandler {
         TypeSerializers.getDefaultSerializers().registerType(TypeToken.of(DialogBean.class), new DialogSerializer());
 
         for (CommentedConfigurationNode configNode : configurationNodes) {
-            dialogList.addAll(configNode.getNode("dialogs").getList(TypeToken.of(DialogBean.class)));
+            for (Map.Entry<Object, ?> configEntry : configNode.getChildrenMap().entrySet()) {
+                String configEntryKey = (String) configEntry.getKey();
+                CommentedConfigurationNode configEntryNode = (CommentedConfigurationNode)configEntry.getValue();
+                // Legacy configuration where "dialogs" is the root node
+                if (configEntryKey.equals("dialogs")) {
+                    dialogList.addAll(configEntryNode.getList(TypeToken.of(DialogBean.class)));
+                } else {
+                    // Current configuration mode where dialogs are by key-values
+                    DialogBean dialog = configEntryNode.getValue(TypeToken.of(DialogBean.class));
+                    dialog.setId(Integer.parseInt(configEntryKey));
+                    dialogList.add(dialog);
+                }
+            }
         }
-           // Storyteller.getLogger().error("Error while reading configuration 'storyteller' : " + e.getMessage());
 
         return dialogList.size();
     }
@@ -88,8 +100,8 @@ public class ConfigurationHandler {
                    configNode = configLoader.load(options);
                    commentedNodes.add(configNode);
                }  catch (IOException e) {
-            Storyteller.getLogger().error("Error while loading configuration '" + p + "' : " + e.getMessage());
-        }
+                    Storyteller.getLogger().error("Error while loading configuration '" + p + "' : " + e.getMessage());
+                }
             }
 
 
