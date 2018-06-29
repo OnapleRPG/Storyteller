@@ -11,7 +11,7 @@ public class DialogSerializer implements TypeSerializer<DialogBean> {
 
     @Override
     public DialogBean deserialize(TypeToken<?> type, ConfigurationNode value) throws ObjectMappingException {
-        DialogBean dialogBean = new DialogBean(value.getNode("id").getInt());
+        DialogBean dialogBean = new DialogBean(value.getNode("id").getString());
         dialogBean.setPages(value.getNode("pages").getList(TypeToken.of(PageBean.class)));
         dialogBean.setTrigger(value.getNode("trigger").getList(TypeToken.of(String.class)));
         String objective = value.getNode("objective").getString();

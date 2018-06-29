@@ -125,7 +125,7 @@ public class Storyteller {
         CommandSpec dialogSpec = CommandSpec.builder()
                 .description(Text.of("Open book command"))
                 .permission("storyteller.command.read")
-                .arguments(GenericArguments.onlyOne(GenericArguments.integer(Text.of("dialog"))),
+                .arguments(GenericArguments.onlyOne(GenericArguments.string(Text.of("dialog"))),
                         GenericArguments.optional(GenericArguments.player(Text.of("player"))))
                 .executor(new OpenBookCommand())
                 .build();

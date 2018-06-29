@@ -34,10 +34,10 @@ public class OpenBookCommand implements CommandExecutor {
      */
     @Override
     public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
-        int dialogId;
+        String dialogId;
 
         if (args.getOne("dialog").isPresent())
-            dialogId = args.<Integer>getOne("dialog").get();
+            dialogId = args.<String>getOne("dialog").get();
 
         else {
             return CommandResult.empty();

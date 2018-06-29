@@ -60,7 +60,7 @@ public class ConfigurationHandler {
                 } else {
                     // Current configuration mode where dialogs are by key-values
                     DialogBean dialog = configEntryNode.getValue(TypeToken.of(DialogBean.class));
-                    dialog.setId(Integer.parseInt(configEntryKey));
+                    dialog.setId(configEntryKey);
                     dialogList.add(dialog);
                 }
             }

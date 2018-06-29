@@ -47,7 +47,7 @@ public class BookGenerator {
         return bookviewBuilder.build();
     }
 
-    public BookView generateDialog(int identifier) throws Exception {
+    public BookView generateDialog(String identifier) throws Exception {
         Optional<DialogBean> dialogOpt = dialogAction.getDialog(identifier);
         if(dialogOpt.isPresent()){
             return generateDialog(dialogOpt.get());
@@ -125,7 +125,7 @@ public class BookGenerator {
             for (Map.Entry<ActionEnum, String> effectiveAction : effectiveActions.entrySet()) {
                 switch (effectiveAction.getKey()) {
                     case OPEN_DIALOG:
-                        changeDialog((Player)commandSource,Integer.parseInt(effectiveAction.getValue()));
+                        changeDialog((Player)commandSource,effectiveAction.getValue());
                         break;
                     case EXECUTE_COMMAND:
                         miscellaneousAction.executeCommand((Player)commandSource, effectiveAction.getValue());
@@ -159,7 +159,7 @@ public class BookGenerator {
      * @param source Player to show dialog to
      * @param dialogIndex Index of the dialog to show
      */
-    private void changeDialog(Player source, int dialogIndex) {
+    private void changeDialog(Player source, String dialogIndex) {
         Optional<DialogBean> dialogBeanOptional = dialogAction.getDialog(dialogIndex);
         if(dialogBeanOptional.isPresent()){
             source.sendBookView(generateDialog(dialogBeanOptional.get()));
