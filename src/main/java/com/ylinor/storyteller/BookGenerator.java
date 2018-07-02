@@ -94,8 +94,8 @@ public class BookGenerator {
     private Text generateButton(ButtonBean buttonBean, List<String> npcNames) {
         Text coloredContent = TextSerializers.FORMATTING_CODE.deserialize(buttonBean.getText());
         Text.Builder textBuilder = Text.builder();
-        textBuilder.append(coloredContent);
         textBuilder.append(Text.of("\n"));
+        textBuilder.append(coloredContent);
         // Deprecated color system
         if (buttonBean.getColor() != null) {
             Optional<TextColor> textColor = game.getRegistry().getType(TextColor.class,buttonBean.getColor().toUpperCase());
