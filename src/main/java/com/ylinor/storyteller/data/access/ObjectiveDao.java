@@ -135,6 +135,8 @@ public class ObjectiveDao {
             while (results.next()) {
                  objectiveList.add(new ObjectiveBean(results.getString("player"), results.getString("objective"), results.getInt("state")));
             }
+        } catch (ServiceUnavailableException e) {
+            Storyteller.getLogger().error(errorDatabasePrefix.concat(e.getMessage()));
         } catch (SQLException e) {
             Storyteller.getLogger().error(e.getSQLState());
         } finally {
