@@ -126,11 +126,12 @@ public class ObjectiveDao {
         String query = "SELECT player, objective, state FROM objective WHERE player = ?";
         Connection connection = null;
         PreparedStatement statement = null;
+        ResultSet results = null;
         try {
             connection = databaseHandler.getDatasource().getConnection();
             statement = connection.prepareStatement(query);
             statement.setString(1, player);
-            ResultSet results = statement.executeQuery();
+            results = statement.executeQuery();
 
             while (results.next()) {
                  objectiveList.add(new ObjectiveBean(results.getString("player"), results.getString("objective"), results.getInt("state")));
@@ -140,6 +141,13 @@ public class ObjectiveDao {
         } catch (SQLException e) {
             Storyteller.getLogger().error(e.getSQLState());
         } finally {
+            try {
+                if (results != null) {
+                    results.close();
+                }
+            } catch (SQLException e) {
+                Storyteller.getLogger().error(e.getSQLState());
+            }
             databaseHandler.closeConnection(connection,statement,null);
         }
         return objectiveList;

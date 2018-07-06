@@ -3,6 +3,7 @@ package com.ylinor.storyteller.action;
 import com.ylinor.storyteller.Storyteller;
 import com.ylinor.storyteller.data.access.KillCountDao;
 import com.ylinor.storyteller.data.beans.KillCountBean;
+import com.ylinor.storyteller.utils.ConditionUtil;
 import org.spongepowered.api.entity.living.player.Player;
 
 import javax.inject.Inject;
@@ -59,23 +60,7 @@ public class KillCountAction {
                     Optional<KillCountBean> killCountBean = killCountDao.getKillCount(npcNames, player.getName(), matcher.group(1));
                     int objectiveValue = (killCountBean.isPresent()) ? killCountBean.get().getCount() : 0;
                     int compareValue = Integer.parseInt(matcher.group(3));
-                    switch (matcher.group(2)) {
-                        case "<":
-                            verified = (objectiveValue < compareValue);
-                            break;
-                        case "<=":
-                            verified = (objectiveValue <= compareValue);
-                            break;
-                        case "==":
-                            verified = (objectiveValue == compareValue);
-                            break;
-                        case ">=":
-                            verified = (objectiveValue >= compareValue);
-                            break;
-                        case ">":
-                            verified = (objectiveValue > compareValue);
-                            break;
-                    }
+                    verified = ConditionUtil.matchesObjective(matcher, objectiveValue, compareValue);
                 } else if (!condition.equals("")) {
                     Storyteller.getLogger().warn("Wrong killcount argument : \"" + condition + "\"");
                 }

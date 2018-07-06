@@ -23,26 +23,27 @@ public class GetObjectiveCommand implements CommandExecutor {
 
     @Override
     public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
-      Optional<Player> player = args.<Player>getOne("player");
+        Optional<Player> player = args.<Player>getOne("player");
 
 
-      if(player.isPresent()) {
-          List<ObjectiveBean> list = Storyteller.getObjectiveDao().getObjectiveByPlayer(player.get().get(Keys.DISPLAY_NAME).get().toPlain());
-          src.sendMessage(Text.builder().append(Text.builder("-------").color(TextColors.GREEN).build())
-          .append(Text.builder(src.getName() + "'s objectives").color(TextColors.RED).build())
-         .append(Text.builder("-------").color(TextColors.GREEN).build()).build());
-          if(list.isEmpty()){
-              src.sendMessage(Text.builder("This player don't have any objectives yet.").color(TextColors.RED).build());
-          }
-          for (ObjectiveBean obj: list) {
-              src.sendMessage(Text.builder(obj.getObjective()).color(TextColors.GOLD)
-                      .append(Text.builder(" : ").color(TextColors.GOLD).build())
-                      .append(Text.builder(""+ obj.getState()).color(TextColors.GREEN).build()).build());
-          }
-          src.sendMessage(Text.builder("---------------------").color(TextColors.GREEN).build());
-          return CommandResult.success();
-      }
-        src.sendMessage(Text.builder("Missing player Argument").color(TextColors.RED).build());
-      return CommandResult.empty();
+        if(player.isPresent()) {
+            List<ObjectiveBean> list = Storyteller.getObjectiveDao().getObjectiveByPlayer(player.get().get(Keys.DISPLAY_NAME).orElse(Text.of("Unknown")).toPlain());
+            src.sendMessage(Text.builder().append(Text.builder("-------").color(TextColors.GREEN).build())
+                                .append(Text.builder(src.getName() + "'s objectives").color(TextColors.RED).build())
+                                .append(Text.builder("-------").color(TextColors.GREEN).build()).build());
+            if (list.isEmpty()) {
+                src.sendMessage(Text.builder("This player don't have any objectives yet.").color(TextColors.RED).build());
+            }
+            for (ObjectiveBean obj: list) {
+                src.sendMessage(Text.builder(obj.getObjective()).color(TextColors.GOLD)
+                                    .append(Text.builder(" : ").color(TextColors.GOLD).build())
+                                    .append(Text.builder(""+ obj.getState()).color(TextColors.GREEN).build()).build());
+            }
+            src.sendMessage(Text.builder("---------------------").color(TextColors.GREEN).build());
+            return CommandResult.success();
+        } else {
+            src.sendMessage(Text.builder("Missing player Argument").color(TextColors.RED).build());
+            return CommandResult.empty();
+        }
     }
 }

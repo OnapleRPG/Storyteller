@@ -47,12 +47,12 @@ public class BookGenerator {
         return bookviewBuilder.build();
     }
 
-    public BookView generateDialog(String identifier) throws Exception {
+    public BookView generateDialog(String identifier) throws IllegalArgumentException {
         Optional<DialogBean> dialogOpt = dialogAction.getDialog(identifier);
         if(dialogOpt.isPresent()){
             return generateDialog(dialogOpt.get());
         }
-        throw new Exception("Dialog Id not Found");
+        throw new IllegalArgumentException("Dialog Id not Found");
     }
 
     /**

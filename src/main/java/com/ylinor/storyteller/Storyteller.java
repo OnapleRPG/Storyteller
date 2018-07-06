@@ -27,6 +27,7 @@ import org.spongepowered.api.event.entity.InteractEntityEvent;
 import org.spongepowered.api.event.filter.cause.Root;
 import org.spongepowered.api.event.game.state.GameInitializationEvent;
 import org.spongepowered.api.plugin.Plugin;
+import org.spongepowered.api.plugin.PluginContainer;
 import org.spongepowered.api.text.BookView;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.world.World;
@@ -60,20 +61,25 @@ public class Storyteller {
     public int loadConfig() throws ObjectMappingException {
           initDefaultConfig();
           return configurationHandler.readDialogsConfiguration(configurationHandler.loadConfiguration(configDir + "/storyteller/"));
-
     }
-    public void initDefaultConfig(){
+
+    private void initDefaultConfig(){
         if (Files.notExists(Paths.get(configDir+"/storyteller/"))){
-            Optional<Asset> dialogDefaultConfigFile = Sponge.getPluginManager().getPlugin("storyteller").get().getAsset("example.conf");
-            getLogger().info("No dialogs files found in /config/storryteller, a default config will be loaded");
-            if (dialogDefaultConfigFile.isPresent()) {
-                try {
-                    dialogDefaultConfigFile.get().copyToDirectory(Paths.get(configDir+"/storyteller/"));
-                } catch (IOException e) {
-                    e.printStackTrace();
+            Optional<PluginContainer> pluginContainer = Sponge.getPluginManager().getPlugin("storyteller");
+            if (pluginContainer.isPresent()) {
+                Optional<Asset> dialogDefaultConfigFile = pluginContainer.get().getAsset("example.conf");
+                getLogger().info("No dialogs files found in /config/storryteller, a default config will be loaded");
+                if (dialogDefaultConfigFile.isPresent()) {
+                    try {
+                        dialogDefaultConfigFile.get().copyToDirectory(Paths.get(configDir+"/storyteller/"));
+                    } catch (IOException e) {
+                        logger.error("Error while initializing default config : ".concat(e.getMessage()));
+                    }
+                } else {
+                    logger.warn("Default config not found.");
                 }
             } else {
-                logger.warn(" default config not found");
+                logger.warn("Plugin was not able to reference itself !");
             }
         }
     }
@@ -82,7 +88,7 @@ public class Storyteller {
 
     private static ObjectiveDao objectiveDao;
     @Inject
-    private void setObjectiveDao(ObjectiveDao objectiveDao) {
+    private void setObjeExceptionctiveDao(ObjectiveDao objectiveDao) {
         Storyteller.objectiveDao = objectiveDao;
     }
     public static ObjectiveDao getObjectiveDao() {
@@ -117,7 +123,7 @@ public class Storyteller {
         try {
           getLogger().info("Dialogs configuration loaded. " +loadConfig()+ " dialogs loaded");
         } catch (ObjectMappingException e) {
-            e.printStackTrace();
+            logger.error("Error while loading dialogs configuration : " + e.getMessage());
         }
         objectiveDao.createTableIfNotExist();
         killCountDao.createTableIfNotExist();

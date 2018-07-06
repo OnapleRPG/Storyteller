@@ -3,6 +3,7 @@ package com.ylinor.storyteller.action;
 import com.ylinor.storyteller.Storyteller;
 import com.ylinor.storyteller.data.access.ObjectiveDao;
 import com.ylinor.storyteller.data.beans.ObjectiveBean;
+import com.ylinor.storyteller.utils.ConditionUtil;
 import org.spongepowered.api.entity.living.player.Player;
 
 import javax.inject.Inject;
@@ -93,23 +94,7 @@ public class ObjectiveAction {
                     Optional<ObjectiveBean> objectiveBean = objectiveDao.getObjectiveByNameAndPlayer(matcher.group(1), playerName);
                     int objectiveValue = (objectiveBean.isPresent()) ? objectiveBean.get().getState() : 0;
                     int compareValue = Integer.parseInt(matcher.group(3));
-                    switch (matcher.group(2)) {
-                        case "<":
-                            verified = (objectiveValue < compareValue);
-                            break;
-                        case "<=":
-                            verified = (objectiveValue <= compareValue);
-                            break;
-                        case "==":
-                            verified = (objectiveValue == compareValue);
-                            break;
-                        case ">=":
-                            verified = (objectiveValue >= compareValue);
-                            break;
-                        case ">":
-                            verified = (objectiveValue > compareValue);
-                            break;
-                    }
+                    verified = ConditionUtil.matchesObjective(matcher, objectiveValue, compareValue);
                 } else if (!condition.equals("")) {
                     Storyteller.getLogger().warn("Wrong objective argument : \"" + condition + "\"");
                 }

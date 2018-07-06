@@ -29,6 +29,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Singleton
 public class ConfigurationHandler {
@@ -83,26 +84,25 @@ public class ConfigurationHandler {
         ConfigurationOptions options = ConfigurationOptions.defaults().setSerializers(serializers);
         List<CommentedConfigurationNode> commentedNodes = new ArrayList<>();
         List<Path> paths = new ArrayList<>();
-        try {
-
-            paths = Files.walk(Paths.get(configName), 1).filter(f -> {
+        try(Stream<Path> pathStream = Files.walk(Paths.get(configName), 1)) {
+            paths = pathStream.filter(f -> {
                 String fn = f.getFileName().toString();
                 return fn.endsWith(".conf");
             }).collect(Collectors.toList());
         } catch (IOException e) {
             Storyteller.getLogger().error(e.getMessage());
         }
-            for (Path p: paths) {
-               try {
-                   ConfigurationLoader<CommentedConfigurationNode> configLoader = HoconConfigurationLoader.builder().setPath(p).build();
+        for (Path p: paths) {
+           try {
+               ConfigurationLoader<CommentedConfigurationNode> configLoader = HoconConfigurationLoader.builder().setPath(p).build();
 
-                   CommentedConfigurationNode configNode = null;
-                   configNode = configLoader.load(options);
-                   commentedNodes.add(configNode);
-               }  catch (IOException e) {
-                    Storyteller.getLogger().error("Error while loading configuration '" + p + "' : " + e.getMessage());
-                }
+               CommentedConfigurationNode configNode = null;
+               configNode = configLoader.load(options);
+               commentedNodes.add(configNode);
+           }  catch (IOException e) {
+                Storyteller.getLogger().error("Error while loading configuration '" + p + "' : " + e.getMessage());
             }
+        }
 
 
         return commentedNodes;
