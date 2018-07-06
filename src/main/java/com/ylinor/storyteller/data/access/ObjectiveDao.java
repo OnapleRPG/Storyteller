@@ -6,6 +6,7 @@ import com.ylinor.storyteller.data.handlers.DatabaseHandler;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import javax.naming.ServiceUnavailableException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -15,6 +16,8 @@ import java.util.Optional;
 
 @Singleton
 public class ObjectiveDao {
+    private static String errorDatabasePrefix = "Error while connecting to database : ";
+
     @Inject
     private DatabaseHandler databaseHandler;
     public ObjectiveDao() {
@@ -44,6 +47,8 @@ public class ObjectiveDao {
             statement.setInt(3, objective.getState());
             statement.execute();
             statement.close();
+        } catch (ServiceUnavailableException e) {
+            Storyteller.getLogger().error(errorDatabasePrefix.concat(e.getMessage()));
         } catch (SQLException e) {
             Storyteller.getLogger().error(e.getSQLState());
         } finally {
@@ -67,6 +72,8 @@ public class ObjectiveDao {
             statement.setString(3, objective.getObjective());
             statement.execute();
             statement.close();
+        } catch (ServiceUnavailableException e) {
+            Storyteller.getLogger().error(errorDatabasePrefix.concat(e.getMessage()));
         } catch (SQLException e) {
             Storyteller.getLogger().error(e.getSQLState());
         } finally {
@@ -85,18 +92,28 @@ public class ObjectiveDao {
         String query = "SELECT player, objective, state FROM objective WHERE objective = ? AND player = ?";
         Connection connection = null;
         PreparedStatement statement = null;
+        ResultSet results = null;
         try {
             connection = databaseHandler.getDatasource().getConnection();
             statement = connection.prepareStatement(query);
             statement.setString(1, name);
             statement.setString(2, player);
-            ResultSet results = statement.executeQuery();
+            results = statement.executeQuery();
             while (results.next()) {
                 objective = Optional.of(new ObjectiveBean(results.getString("player"), results.getString("objective"), results.getInt("state")));
             }
+        } catch (ServiceUnavailableException e) {
+            Storyteller.getLogger().error(errorDatabasePrefix.concat(e.getMessage()));
         } catch (SQLException e) {
             Storyteller.getLogger().error(e.getSQLState());
         } finally {
+            try {
+                if (results != null) {
+                    results.close();
+                }
+            } catch (SQLException e) {
+                Storyteller.getLogger().error(e.getSQLState());
+            }
             databaseHandler.closeConnection(connection,statement,null);
         }
         return objective;

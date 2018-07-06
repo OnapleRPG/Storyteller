@@ -13,7 +13,9 @@ import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.args.GenericArguments;
 import org.spongepowered.api.command.spec.CommandSpec;
 import org.spongepowered.api.config.DefaultConfig;
+import org.spongepowered.api.data.key.Key;
 import org.spongepowered.api.data.key.Keys;
+import org.spongepowered.api.data.value.mutable.Value;
 import org.spongepowered.api.entity.Entity;
 import org.spongepowered.api.entity.living.Living;
 import org.spongepowered.api.entity.living.player.Player;
@@ -140,8 +142,9 @@ public class Storyteller {
             if (killer instanceof Player) {
                 Player player = (Player) killer;
                 String entityName;
-                if (entity.get(Keys.DISPLAY_NAME).isPresent()) {
-                    entityName = entity.get(Keys.DISPLAY_NAME).get().toPlain();
+                Optional<Text> entityDisplayName = entity.get(Keys.DISPLAY_NAME);
+                if (entityDisplayName.isPresent()) {
+                    entityName = entityDisplayName.get().toPlain();
                 } else {
                     entityName = entity.getType().getName();
                 }

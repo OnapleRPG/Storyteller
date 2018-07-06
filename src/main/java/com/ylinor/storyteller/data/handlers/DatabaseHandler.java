@@ -5,6 +5,7 @@ import org.spongepowered.api.Sponge;
 import org.spongepowered.api.service.sql.SqlService;
 
 import javax.inject.Singleton;
+import javax.naming.ServiceUnavailableException;
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -16,9 +17,9 @@ public class DatabaseHandler {
     public DatabaseHandler() {}
     private String JDBC_URL = "jdbc:sqlite:./storyteller.db";
     private SqlService sqlService;
-    public DataSource getDatasource() throws SQLException {
+    public DataSource getDatasource() throws SQLException, ServiceUnavailableException {
         if (sqlService == null) {
-            sqlService = Sponge.getServiceManager().provide(SqlService.class).get();
+            sqlService = Sponge.getServiceManager().provide(SqlService.class).orElseThrow(() -> new ServiceUnavailableException("Sponge service manager not provided."));
         }
         return sqlService.getDataSource(JDBC_URL);
     }
@@ -31,6 +32,8 @@ public class DatabaseHandler {
             statement = connection.prepareStatement(query);
             statement.execute();
             statement.close();
+        } catch (ServiceUnavailableException e) {
+            Storyteller.getLogger().error("Error while connecting to database : " + e.getMessage());
         } catch (SQLException e) {
             Storyteller.getLogger().error("Error while creating respawning dialog table : " + e.getMessage());
         } finally {

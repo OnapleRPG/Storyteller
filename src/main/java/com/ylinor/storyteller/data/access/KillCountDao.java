@@ -5,6 +5,7 @@ import com.ylinor.storyteller.data.beans.KillCountBean;
 import com.ylinor.storyteller.data.handlers.DatabaseHandler;
 
 import javax.inject.Inject;
+import javax.naming.ServiceUnavailableException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -12,6 +13,8 @@ import java.sql.SQLException;
 import java.util.Optional;
 
 public class KillCountDao {
+    private static String errorDatabasePrefix = "Error while connecting to database : ";
+
     @Inject
     private DatabaseHandler databaseHandler;
     public KillCountDao() {
@@ -42,6 +45,8 @@ public class KillCountDao {
             statement.setInt(4, killCountBean.getCount());
             statement.execute();
             statement.close();
+        } catch (ServiceUnavailableException e) {
+            Storyteller.getLogger().error(errorDatabasePrefix.concat(e.getMessage()));
         } catch (SQLException e) {
             Storyteller.getLogger().error(e.getSQLState());
         } finally {
@@ -61,19 +66,29 @@ public class KillCountDao {
         String query = "SELECT npcname, player, monstername, count FROM killcount WHERE npcname = ? AND player = ? AND monstername = ?";
         Connection connection = null;
         PreparedStatement statement = null;
+        ResultSet results = null;
         try {
             connection = databaseHandler.getDatasource().getConnection();
             statement = connection.prepareStatement(query);
             statement.setString(1, npcName);
             statement.setString(2, playerName);
             statement.setString(3, monsterName);
-            ResultSet results = statement.executeQuery();
+            results = statement.executeQuery();
             while (results.next()) {
                 killCount = Optional.of(new KillCountBean(results.getString("npcname"), results.getString("player"), results.getString("monstername"), results.getInt("count")));
             }
+        } catch (ServiceUnavailableException e) {
+            Storyteller.getLogger().error(errorDatabasePrefix.concat(e.getMessage()));
         } catch (SQLException e) {
             Storyteller.getLogger().error(e.getSQLState());
         } finally {
+            try {
+                if (results != null) {
+                    results.close();
+                }
+            } catch (SQLException e) {
+                Storyteller.getLogger().error(e.getSQLState());
+            }
             databaseHandler.closeConnection(connection,statement,null);
         }
         return killCount;
@@ -97,6 +112,8 @@ public class KillCountDao {
             statement.setString(3, monsterName);
             statement.execute();
             statement.close();
+        } catch (ServiceUnavailableException e) {
+            Storyteller.getLogger().error(errorDatabasePrefix.concat(e.getMessage()));
         } catch (SQLException e) {
             Storyteller.getLogger().error(e.getSQLState());
         } finally {
@@ -120,6 +137,8 @@ public class KillCountDao {
             statement.setString(2, monsterName);
             statement.execute();
             statement.close();
+        } catch (ServiceUnavailableException e) {
+            Storyteller.getLogger().error(errorDatabasePrefix.concat(e.getMessage()));
         } catch (SQLException e) {
             Storyteller.getLogger().error(e.getSQLState());
         } finally {

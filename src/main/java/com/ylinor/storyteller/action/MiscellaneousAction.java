@@ -49,7 +49,7 @@ public class MiscellaneousAction {
             source.setLocation(location);
         } catch (Exception e){
             source.sendMessage(Text.builder("The position : "+ position + " is invalid.").color(TextColors.RED).build());
-            e.printStackTrace();
+            Storyteller.getLogger().error("Error while teleporting : " + e.getMessage());
         }
     }
 
