@@ -3,7 +3,6 @@ package com.ylinor.storyteller.commands;
 import com.ylinor.storyteller.Storyteller;
 
 import com.ylinor.storyteller.action.DialogAction;
-import com.ylinor.storyteller.data.beans.DialogBean;
 import org.spongepowered.api.command.CommandException;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.CommandSource;
@@ -34,25 +33,31 @@ public class OpenBookCommand implements CommandExecutor {
      */
     @Override
     public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
-        int dialogId;
-        Optional<Text> argument = args.getOne("dialog");
-        if (argument.isPresent())
-            dialogId = Integer.parseInt(argument.get().toPlain());
+        String dialogId;
+
+        if (args.<String>getOne("dialog").isPresent())
+            dialogId = args.<String>getOne("dialog").get();
         else {
             return CommandResult.empty();
         }
-        Optional<DialogBean> dialog = dialogAction.getDialog(dialogId);
-        if (dialog.isPresent()) {
-            BookView bookView = Storyteller.getBookGenerator().generateDialog(dialog.get());
-            if (src instanceof Player) {
-                ((Player) src).sendBookView(bookView);
-                return CommandResult.success();
-            } else {
-                src.sendMessage(Text.of("Target must be a player"));
-            }
-        } else {
-            src.sendMessage(Text.of("Dialog not found"));
+        Optional<Player> playerOpt = args.getOne("player");
+        try {
+           BookView bookView = Storyteller.getBookGenerator().generateDialog(dialogId);
+           if(playerOpt.isPresent()){
+               playerOpt.get().sendBookView(bookView);
+           }else {
+               if (src instanceof Player) {
+                   ((Player) src).sendBookView(bookView);
+                   return CommandResult.success();
+               } else {
+                   src.sendMessage(Text.of("Target must be a player"));
+               }
+           }
         }
+        catch (Exception e){
+                src.sendMessage(Text.of("Dialog not found"));
+        }
+
         return CommandResult.empty();
     }
 }

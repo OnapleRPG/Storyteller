@@ -6,3 +6,5 @@ gradle
 gradlew
 gradlew.bat
 gradle.properties
+version.properties
+/version.properties

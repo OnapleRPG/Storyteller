@@ -6,7 +6,7 @@ import java.util.List;
 
 public class DialogBean {
 
-    private int id;
+    private String id;
     private List<PageBean> pages;
     private List<String> trigger;
     private String objective;
@@ -20,10 +20,10 @@ public class DialogBean {
         this.trigger = trigger;
     }
 
-    public int getId() {
+    public String getId() {
         return id;
     }
-    public void setId(int id) {
+    public void setId(String id) {
         this.id = id;
     }
 
@@ -55,7 +55,7 @@ public class DialogBean {
         this.killCount = killCount;
     }
 
-    public DialogBean(int id) {
+    public DialogBean(String id) {
         this.id = id;
         this.pages = new ArrayList<>();
         this.trigger = new ArrayList<>();

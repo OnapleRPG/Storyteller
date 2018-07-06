@@ -15,13 +15,20 @@ import ninja.leaping.configurate.loader.ConfigurationLoader;
 import ninja.leaping.configurate.objectmapping.ObjectMappingException;
 import ninja.leaping.configurate.objectmapping.serialize.TypeSerializerCollection;
 import ninja.leaping.configurate.objectmapping.serialize.TypeSerializers;
+import org.spongepowered.api.command.CommandSource;
+import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.text.Text;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Singleton
 public class ConfigurationHandler {
@@ -37,17 +44,29 @@ public class ConfigurationHandler {
 
     /**
      * Read storyteller configuration and interpret it
-     * @param configurationNode ConfigurationNode to read from
+     * @param configurationNodes ConfigurationNodes to read from
      */
-    public void readDialogsConfiguration(CommentedConfigurationNode configurationNode){
+    public int readDialogsConfiguration(List<CommentedConfigurationNode> configurationNodes) throws ObjectMappingException {
         dialogList = new ArrayList<>();
         TypeSerializers.getDefaultSerializers().registerType(TypeToken.of(DialogBean.class), new DialogSerializer());
-        try {
-            dialogList = configurationNode.getNode("dialogs").getList(TypeToken.of(DialogBean.class));
-        } catch (ObjectMappingException e) {
-            Storyteller.getLogger().error("Error while reading configuration 'storyteller' : " + e.getMessage());
+
+        for (CommentedConfigurationNode configNode : configurationNodes) {
+            for (Map.Entry<Object, ?> configEntry : configNode.getChildrenMap().entrySet()) {
+                String configEntryKey = (String) configEntry.getKey();
+                CommentedConfigurationNode configEntryNode = (CommentedConfigurationNode)configEntry.getValue();
+                // Legacy configuration where "dialogs" is the root node
+                if (configEntryKey.equals("dialogs")) {
+                    dialogList.addAll(configEntryNode.getList(TypeToken.of(DialogBean.class)));
+                } else {
+                    // Current configuration mode where dialogs are by key-values
+                    DialogBean dialog = configEntryNode.getValue(TypeToken.of(DialogBean.class));
+                    dialog.setId(configEntryKey);
+                    dialogList.add(dialog);
+                }
+            }
         }
-        Storyteller.getLogger().info(dialogList.size() + " dialogs loaded.");
+
+        return dialogList.size();
     }
 
     /**
@@ -55,20 +74,37 @@ public class ConfigurationHandler {
      * @param configName Name of the configuration in the configuration folder
      * @return Configuration ready to be used
      */
-    public  CommentedConfigurationNode loadConfiguration(String configName) {
+    public List<CommentedConfigurationNode> loadConfiguration(String configName) {
         TypeSerializerCollection serializers = TypeSerializers.getDefaultSerializers().newChild();
         serializers.registerType(TypeToken.of(ActionBean.class), new ActionSerializer());
         serializers.registerType(TypeToken.of(ButtonBean.class), new ButtonSerializer());
         serializers.registerType(TypeToken.of(PageBean.class), new PageSerializer());
         serializers.registerType(TypeToken.of(DialogBean.class), new DialogSerializer());
         ConfigurationOptions options = ConfigurationOptions.defaults().setSerializers(serializers);
-        ConfigurationLoader<CommentedConfigurationNode> configLoader = HoconConfigurationLoader.builder().setPath(Paths.get(configName)).build();
-        CommentedConfigurationNode configNode = null;
+        List<CommentedConfigurationNode> commentedNodes = new ArrayList<>();
+        List<Path> paths = new ArrayList<>();
         try {
-            configNode = configLoader.load(options);
+
+            paths = Files.walk(Paths.get(configName), 1).filter(f -> {
+                String fn = f.getFileName().toString();
+                return fn.endsWith(".conf");
+            }).collect(Collectors.toList());
         } catch (IOException e) {
-            Storyteller.getLogger().error("Error while loading configuration '" + configName + "' : " + e.getMessage());
+            Storyteller.getLogger().error(e.getMessage());
         }
-        return configNode;
+            for (Path p: paths) {
+               try {
+                   ConfigurationLoader<CommentedConfigurationNode> configLoader = HoconConfigurationLoader.builder().setPath(p).build();
+
+                   CommentedConfigurationNode configNode = null;
+                   configNode = configLoader.load(options);
+                   commentedNodes.add(configNode);
+               }  catch (IOException e) {
+                    Storyteller.getLogger().error("Error while loading configuration '" + p + "' : " + e.getMessage());
+                }
+            }
+
+
+        return commentedNodes;
     }
 }

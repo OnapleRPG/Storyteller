@@ -7,6 +7,7 @@ import com.ylinor.storyteller.action.ObjectiveAction;
 import com.ylinor.storyteller.data.ActionEnum;
 import com.ylinor.storyteller.data.beans.*;
 
+import org.apache.commons.lang3.EnumUtils;
 import org.spongepowered.api.Game;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.text.BookView;
@@ -14,6 +15,7 @@ import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.action.TextActions;
 import org.spongepowered.api.text.format.TextColor;
 import org.spongepowered.api.text.format.TextColors;
+import org.spongepowered.api.text.serializer.TextSerializers;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -45,20 +47,31 @@ public class BookGenerator {
         return bookviewBuilder.build();
     }
 
+    public BookView generateDialog(String identifier) throws Exception {
+        Optional<DialogBean> dialogOpt = dialogAction.getDialog(identifier);
+        if(dialogOpt.isPresent()){
+            return generateDialog(dialogOpt.get());
+        }
+        throw new Exception("Dialog Id not Found");
+    }
+
     /**
      * Generate the text to print inside a page
      * @param page Page data
      * @return Text to display (with optional buttons)
      */
     private Text generatePage(PageBean page, List<String> npcNames){
-        Text.Builder text = Text.builder(page.getMessage() + "\n");
+        Text coloredContent = TextSerializers.FORMATTING_CODE.deserialize(page.getMessage());
+        Text.Builder textBuilder = Text.builder();
+        textBuilder.append(coloredContent);
+        textBuilder.append(Text.of("\n"));
         if (!page.getButtonBeanList().isEmpty()) {
             List<ButtonBean> buttons = page.getButtonBeanList();
             for (ButtonBean buttonBean : buttons) {
-                text.append(generateButton(buttonBean, npcNames));
+                textBuilder.append(generateButton(buttonBean, npcNames));
             }
         }
-        return text.build();
+        return textBuilder.build();
     }
 
     /**
@@ -68,7 +81,7 @@ public class BookGenerator {
      */
     public BookView generateDefaultBook(Player player){
         BookView.Builder bookviewBuilder = BookView.builder();
-        Text.Builder text = Text.builder("Salutations, " + player.getName() + ".");
+        Text.Builder text = Text.builder("Greetings, " + player.getName() + ".");
         bookviewBuilder.addPage(text.build());
         return bookviewBuilder.build();
     }
@@ -79,15 +92,27 @@ public class BookGenerator {
      * @return Printed button
      */
     private Text generateButton(ButtonBean buttonBean, List<String> npcNames) {
-        Text.Builder textBuilder = Text.builder(buttonBean.getText());
-        Optional<TextColor> textColor = game.getRegistry().getType(TextColor.class,buttonBean.getColor().toUpperCase());
-        if (textColor.isPresent()) {
-            textBuilder.color(textColor.get());
+        Text coloredContent = TextSerializers.FORMATTING_CODE.deserialize(buttonBean.getText());
+        Text.Builder textBuilder = Text.builder();
+        textBuilder.append(Text.of("\n"));
+        textBuilder.append(coloredContent);
+        // Deprecated color system
+        if (buttonBean.getColor() != null) {
+            Optional<TextColor> textColor = game.getRegistry().getType(TextColor.class,buttonBean.getColor().toUpperCase());
+            if (textColor.isPresent()) {
+                textBuilder.color(textColor.get());
+            }
         }
+        // Iterate button actions
         List<ActionBean> actions = buttonBean.getActions();
         Map<ActionEnum, String> effectiveActions = new HashMap<>();
         for(ActionBean action: actions) {
-            effectiveActions.put(ActionEnum.valueOf(action.getName()), action.getArg());
+            String[] actionNameSplitted = action.getName().split(" ", 2);
+            if (EnumUtils.isValidEnum(ActionEnum.class, action.getName())) {
+                effectiveActions.put(ActionEnum.valueOf(action.getName()), action.getArg());
+            } else if (EnumUtils.isValidEnum(ActionEnum.class, actionNameSplitted[0]) && actionNameSplitted.length > 1) {
+                effectiveActions.put(ActionEnum.valueOf(actionNameSplitted[0]), actionNameSplitted[1]);
+            }
         }
         // Concatenate NPC names
         String npcNamesString = "";
@@ -100,7 +125,7 @@ public class BookGenerator {
             for (Map.Entry<ActionEnum, String> effectiveAction : effectiveActions.entrySet()) {
                 switch (effectiveAction.getKey()) {
                     case OPEN_DIALOG:
-                        changeDialog((Player)commandSource,Integer.parseInt(effectiveAction.getValue()));
+                        changeDialog((Player)commandSource,effectiveAction.getValue());
                         break;
                     case EXECUTE_COMMAND:
                         miscellaneousAction.executeCommand((Player)commandSource, effectiveAction.getValue());
@@ -134,7 +159,7 @@ public class BookGenerator {
      * @param source Player to show dialog to
      * @param dialogIndex Index of the dialog to show
      */
-    private void changeDialog(Player source, int dialogIndex) {
+    private void changeDialog(Player source, String dialogIndex) {
         Optional<DialogBean> dialogBeanOptional = dialogAction.getDialog(dialogIndex);
         if(dialogBeanOptional.isPresent()){
             source.sendBookView(generateDialog(dialogBeanOptional.get()));

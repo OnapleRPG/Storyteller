@@ -2,6 +2,7 @@ package com.ylinor.storyteller.commands;
 
 import com.ylinor.storyteller.Storyteller;
 import com.ylinor.storyteller.data.handlers.ConfigurationHandler;
+import ninja.leaping.configurate.objectmapping.ObjectMappingException;
 import org.spongepowered.api.command.CommandException;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.CommandSource;
@@ -10,6 +11,7 @@ import org.spongepowered.api.command.spec.CommandExecutor;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.text.BookView;
 import org.spongepowered.api.text.Text;
+import org.spongepowered.api.text.format.TextColors;
 
 import java.util.Optional;
 
@@ -26,7 +28,23 @@ public class ReloadCommand implements CommandExecutor {
     @Override
     public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
         Storyteller.getLogger().info("Reloading storyteller configuration...");
-        Storyteller.getInstance().loadConfig();
+
+        src.sendMessage(Text.builder("----------------------------").color(TextColors.RED).build());
+        try {
+            src.sendMessage(
+                    Text.builder("Dialogues configuration reloaded.").color(TextColors.GREEN)
+                    .append(Text.builder(" " + Storyteller.getInstance().loadConfig() + " ").color(TextColors.GOLD).build())
+                    .append( Text.builder("dialogues loaded.").color(TextColors.GREEN).build()).build()
+            );
+
+        } catch (ObjectMappingException e) {
+            Text.builder("Dialogues configuration failed.").color(TextColors.DARK_RED);
+            Text.builder(e.getMessage()).color(TextColors.RED);
+        }
+
+
+        src.sendMessage(Text.builder("----------------------------").color(TextColors.RED).build());
+
         return CommandResult.success();
     }
 }
