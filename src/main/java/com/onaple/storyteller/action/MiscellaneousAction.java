@@ -2,7 +2,7 @@ package com.onaple.storyteller.action;
 
 import com.flowpowered.math.vector.Vector3i;
 import com.onaple.storyteller.Storyteller;
-import com.ylinor.itemizer.service.IItemService;
+import com.onaple.itemizer.service.IItemService;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.entity.Entity;

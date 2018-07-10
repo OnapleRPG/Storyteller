@@ -11,7 +11,6 @@ import com.onaple.storyteller.data.serializer.ActionSerializer;
 import com.onaple.storyteller.data.serializer.ButtonSerializer;
 import com.onaple.storyteller.data.serializer.DialogSerializer;
 import com.onaple.storyteller.data.serializer.PageSerializer;
-import com.ylinor.storyteller.data.beans.*;
 import ninja.leaping.configurate.ConfigurationOptions;
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
 import ninja.leaping.configurate.hocon.HoconConfigurationLoader;

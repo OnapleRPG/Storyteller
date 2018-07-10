@@ -8,15 +8,13 @@ apply plugin: 'java'
 apply plugin: 'maven-publish'
 apply plugin: 'org.spongepowered.plugin'
 
-version = "0.1.2"
-
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
 publishing {
     publications {
         maven(MavenPublication) {
-            groupId 'com.ylinor'
+            groupId 'com.onaple'
             artifactId 'storyteller'
             version '0.1.1'
 
@@ -27,16 +25,18 @@ publishing {
 
 repositories {
     mavenCentral()
-    maven { url 'https://jitpack.io' }
+    maven {
+        name = 'jitpack'
+        url = 'https://jitpack.io'
+    }
 }
 
 [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
 dependencies {
     compile 'org.spongepowered:spongeapi:7.0.0'
     compile 'org.xerial:sqlite-jdbc:3.7.2'
-    testCompile "junit:junit:4.11"
-    compile 'com.github.Ylinor:Itemizer:-SNAPSHOT'
-
+    testCompile 'junit:junit:4.11'
+    implementation 'com.github.OnapleRPG:Itemizer:V1.0.0'
 }
 
 sonarqube {
