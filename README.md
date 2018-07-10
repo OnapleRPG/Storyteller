@@ -1,3 +1,4 @@
+[![Build Status](https://travis-ci.org/OnapleRPG/Storyteller.svg?branch=master)](https://travis-ci.org/OnapleRPG/Storyteller)
 ![Sonarcloud Status](https://sonarcloud.io/api/project_badges/measure?project=storyteller&metric=alert_status)
 # Storyteller  
 ## Introduction  

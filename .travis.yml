@@ -8,3 +8,4 @@ addons:
     organization: ylinor-github
 script:
   - ./gradlew sonarqube
+  - ./gradlew build
