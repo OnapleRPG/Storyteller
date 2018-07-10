@@ -1,3 +1,4 @@
+![Sonarcloud Status](https://sonarcloud.io/api/project_badges/measure?project=Storyteller&metric=alert_status)
 # Storyteller  
 ## Introduction  
 Storyteller is a Sponge plugin designed to send messages to players through the book interface. Write stories and 
