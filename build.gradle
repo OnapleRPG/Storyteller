@@ -14,7 +14,7 @@ targetCompatibility = 1.8
 publishing {
     publications {
         maven(MavenPublication) {
-            groupId 'com.onaple'
+            groupId 'com.ylinor'
             artifactId 'storyteller'
             version '0.1.1'
 
