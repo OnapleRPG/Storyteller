@@ -16,7 +16,7 @@ The plugin is designed to work with Sponge API 7.0.0 (Minecraft 1.12). To instal
 into the mods folder on your server. 
 
 ## Configuration
-The dialogs need to be configured first, like the following example.  
+The dialogs need to be configured first, using JSON files located in the *config/storyteller/* folder, like the following example.  
 * The **id** number is used to reference a dialog from an other one or from a command call
 * The **trigger** defines a list of villager names that will trigger the dialog when the player right click them
 * The optional **objective** field is used to map custom objectives that act as variables being edited as a result of some dialog action
