@@ -1,9 +1,6 @@
 package com.onaple.storyteller;
 
-import com.onaple.storyteller.action.DialogAction;
-import com.onaple.storyteller.action.KillCountAction;
-import com.onaple.storyteller.action.ObjectiveAction;
-import com.onaple.storyteller.action.MiscellaneousAction;
+import com.onaple.storyteller.action.*;
 import com.onaple.storyteller.data.ActionEnum;
 import com.onaple.storyteller.data.beans.ActionBean;
 import com.onaple.storyteller.data.beans.ButtonBean;
@@ -36,6 +33,8 @@ public class BookGenerator {
     private KillCountAction killCountAction;
     @Inject
     private MiscellaneousAction miscellaneousAction;
+    @Inject
+    private InstanceAction instanceAction;
 
     /**
      * Create a bookview from a dialog
@@ -150,6 +149,12 @@ public class BookGenerator {
                         break;
                     case STOP_KILL_COUNT:
                         killCountAction.stopKillCount((Player)commandSource, npcNameStringFinal, effectiveAction.getValue());
+                        break;
+                    case CREATE_INSTANCE:
+                        instanceAction.createInstance(((Player)commandSource).getName(), effectiveAction.getValue());
+                        break;
+                    case APPARATE:
+                        instanceAction.apparatePlayer(((Player)commandSource).getName(), effectiveAction.getValue());
                         break;
                 }
             }
