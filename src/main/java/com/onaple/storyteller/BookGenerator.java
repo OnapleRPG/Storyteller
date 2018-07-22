@@ -1,5 +1,7 @@
 package com.onaple.storyteller;
 
+import com.flowpowered.math.vector.Vector3d;
+import com.onaple.epicboundaries.EpicBoundaries;
 import com.onaple.storyteller.action.*;
 import com.onaple.storyteller.data.ActionEnum;
 import com.onaple.storyteller.data.beans.ActionBean;
@@ -151,15 +153,48 @@ public class BookGenerator {
                         killCountAction.stopKillCount((Player)commandSource, npcNameStringFinal, effectiveAction.getValue());
                         break;
                     case CREATE_INSTANCE:
-                        instanceAction.createInstance(((Player)commandSource).getName(), effectiveAction.getValue());
+                        String[] createInstanceParameters = effectiveAction.getValue().split(" ");
+                        if (createInstanceParameters.length >= 4) {
+                            String[] positionValues = Arrays.copyOfRange(createInstanceParameters, 1, createInstanceParameters.length);
+                            convertStringArrayToVector3d(positionValues).ifPresent(position -> {
+                                instanceAction.createInstance(((Player)commandSource).getName(), createInstanceParameters[0], position);
+                            });
+                        }
                         break;
                     case APPARATE:
-                        instanceAction.apparatePlayer(((Player)commandSource).getName(), effectiveAction.getValue());
+                        String[] apparateParameters = effectiveAction.getValue().split(" ");
+                        if (apparateParameters.length >= 4) {
+                            String[] positionValues = Arrays.copyOfRange(apparateParameters, 1, apparateParameters.length);
+                            convertStringArrayToVector3d(positionValues).ifPresent(position -> {
+                                instanceAction.apparatePlayer(((Player)commandSource).getName(), apparateParameters[0], position);
+                            });
+                        }
                         break;
                 }
             }
         }));
         return textBuilder.build();
+    }
+
+    /**
+     * Convert a string[3] array to a Vector3d
+     * @param array Array to convert
+     * @return Optional of Vector3d if possible
+     */
+    private Optional<Vector3d> convertStringArrayToVector3d(String[] array) {
+        if (array.length >= 3) {
+            try {
+                double[] position = new double[3];
+                position[0] = Double.valueOf(array[0]);
+                position[1] = Double.valueOf(array[1]);
+                position[2] = Double.valueOf(array[2]);
+                Vector3d positionVector = new Vector3d(position[0], position[1], position[2]);
+                return Optional.of(positionVector);
+            } catch (NumberFormatException e) {
+                EpicBoundaries.getLogger().warn("Invalid parameters provided for position");
+            }
+        }
+        return Optional.empty();
     }
 
     /**

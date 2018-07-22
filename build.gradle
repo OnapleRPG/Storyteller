@@ -37,7 +37,7 @@ dependencies {
     compile 'org.xerial:sqlite-jdbc:3.7.2'
     testCompile 'junit:junit:4.11'
     implementation 'com.github.OnapleRPG:Itemizer:V1.0.0'
-    implementation 'com.github.OnapleRPG:EpicBoundaries:V0.1.0'
+    implementation 'com.github.OnapleRPG:EpicBoundaries:V0.2.0'
 }
 
 sonarqube {
