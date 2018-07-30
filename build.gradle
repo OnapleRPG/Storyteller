@@ -16,7 +16,7 @@ version = "1.0.0"
 publishing {
     publications {
         maven(MavenPublication) {
-            groupId 'com.onaple'
+            groupId 'com.ylinor'
             artifactId 'storyteller'
             version '0.1.1'
 
@@ -39,6 +39,7 @@ dependencies {
     compile 'org.xerial:sqlite-jdbc:3.7.2'
     testCompile 'junit:junit:4.11'
     implementation 'com.github.OnapleRPG:Itemizer:V1.0.0'
+    implementation 'com.github.OnapleRPG:EpicBoundaries:V0.2.0'
 }
 
 sonarqube {

@@ -1,10 +1,10 @@
-[![Build Status](https://travis-ci.org/OnapleRPG/Storyteller.svg?branch=master)](https://travis-ci.org/OnapleRPG/Storyteller)
-![Sonarcloud Status](https://sonarcloud.io/api/project_badges/measure?project=storyteller&metric=alert_status)
-# Storyteller  
+
+# Storyteller   [![Build Status](https://travis-ci.org/OnapleRPG/Storyteller.svg?branch=master)](https://travis-ci.org/OnapleRPG/Storyteller) ![Sonarcloud Status](https://sonarcloud.io/api/project_badges/measure?project=storyteller&metric=alert_status)  [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 ## Introduction  
 Storyteller is a Sponge plugin designed to send messages to players through the book interface. Write stories and 
 ambiance your world with fully configurable books. Set the *text*, the *color*, the *pages*, and attach the book to 
 several *game events*. Books support *buttons* with callback to design more complex and interactive dialogs.
+Note that it replaces the default villager's behavior.
 
 ### Functionnalities
 * Callable by Commands 
@@ -14,10 +14,20 @@ several *game events*. Books support *buttons* with callback to design more comp
 
 ## Get started
 The plugin is designed to work with Sponge API 7.0.0 (Minecraft 1.12). To install it, just drag and drop the jar file 
-into the mods folder on your server. 
+into the mods folder on your server. A default configuration will be created in the *config/storyteller* folder when you first launch the server with the plugin.
+
+## Commands
+* **/dialog *x* [*player*]** : Open a configured dialog to a given player or the command executor, *x* being the dialog identifier.  
+Permission : *storyteller.command.read*
+* **/reload-storyteller** : Reload the storyteller configuration files.  
+Permission : *storyteller.command.reload*
+* **/get-objectives *player*** : Returns storyteller associated player objectives in chat.  
+Permission : *storyteller.command.objectives*
+* **/set-objective *player* *objective* *value*** : Set the current player objective value for a given objective to a given number.  
+Permission : *storyteller.command.objectives*
 
 ## Configuration
-The dialogs need to be configured first, like the following example.  
+The dialogs need to be configured first, using JSON files located in the *config/storyteller/* folder, like the following example.  
 * The **id** number is used to reference a dialog from an other one or from a command call
 * The **trigger** defines a list of villager names that will trigger the dialog when the player right click them
 * The optional **objective** field is used to map custom objectives that act as variables being edited as a result of some dialog action
@@ -102,3 +112,5 @@ Here is the list of the available button actions and there arguments (separated 
 - **SET_OBJECTIVE** : Edit an *objective*. You can use the name you want and the operators *=*, *+=*, *-=* (ex : dialog_count+=1)
 - **START_KILL_COUNT** : Start a counter for a given NPC and a given monster. Takes a monster name or type as argument.
 - **STOP_KILL_COUNT** : Stop a counter for cleaning. Takes a monster name as argument, and use the NPC name (trigger).
+- **CREATE_INSTANCE** : Create an instance from a world and teleport the player into it. Takes the world to copy as first argument, then three numbers for X, Y and Z position to teleport the player to (*Only if EpicBoundaries plugin is available*).
+- **APPARATE** : Teleport the player to another world. Takes the world name as first argument, then the X, Y and Z position (*Only if EpicBoundaries plugin is available*)

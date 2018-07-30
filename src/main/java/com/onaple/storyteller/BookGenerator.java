@@ -1,9 +1,8 @@
 package com.onaple.storyteller;
 
-import com.onaple.storyteller.action.DialogAction;
-import com.onaple.storyteller.action.KillCountAction;
-import com.onaple.storyteller.action.ObjectiveAction;
-import com.onaple.storyteller.action.MiscellaneousAction;
+import com.flowpowered.math.vector.Vector3d;
+import com.onaple.epicboundaries.EpicBoundaries;
+import com.onaple.storyteller.action.*;
 import com.onaple.storyteller.data.ActionEnum;
 import com.onaple.storyteller.data.beans.ActionBean;
 import com.onaple.storyteller.data.beans.ButtonBean;
@@ -36,6 +35,19 @@ public class BookGenerator {
     private KillCountAction killCountAction;
     @Inject
     private MiscellaneousAction miscellaneousAction;
+    @Inject
+    private InstanceAction instanceAction;
+
+    public void displayBook (Player player,String entityName) {
+        Optional<DialogBean> dialog = dialogAction.getDialogByTrigger(entityName,player);
+        if (dialog.isPresent()) {
+            BookView bookView = generateDialog(dialog.get());
+            player.sendBookView(bookView);
+        } else {
+            BookView bookView = generateDefaultBook(player);
+            player.sendBookView(bookView);
+        }
+    }
 
     /**
      * Create a bookview from a dialog
@@ -151,10 +163,49 @@ public class BookGenerator {
                     case STOP_KILL_COUNT:
                         killCountAction.stopKillCount((Player)commandSource, npcNameStringFinal, effectiveAction.getValue());
                         break;
+                    case CREATE_INSTANCE:
+                        String[] createInstanceParameters = effectiveAction.getValue().split(" ");
+                        if (createInstanceParameters.length >= 4) {
+                            String[] positionValues = Arrays.copyOfRange(createInstanceParameters, 1, createInstanceParameters.length);
+                            convertStringArrayToVector3d(positionValues).ifPresent(position -> {
+                                instanceAction.createInstance(((Player)commandSource).getName(), createInstanceParameters[0], position);
+                            });
+                        }
+                        break;
+                    case APPARATE:
+                        String[] apparateParameters = effectiveAction.getValue().split(" ");
+                        if (apparateParameters.length >= 4) {
+                            String[] positionValues = Arrays.copyOfRange(apparateParameters, 1, apparateParameters.length);
+                            convertStringArrayToVector3d(positionValues).ifPresent(position -> {
+                                instanceAction.apparatePlayer(((Player)commandSource).getName(), apparateParameters[0], position);
+                            });
+                        }
+                        break;
                 }
             }
         }));
         return textBuilder.build();
+    }
+
+    /**
+     * Convert a string[3] array to a Vector3d
+     * @param array Array to convert
+     * @return Optional of Vector3d if possible
+     */
+    private Optional<Vector3d> convertStringArrayToVector3d(String[] array) {
+        if (array.length >= 3) {
+            try {
+                double[] position = new double[3];
+                position[0] = Double.valueOf(array[0]);
+                position[1] = Double.valueOf(array[1]);
+                position[2] = Double.valueOf(array[2]);
+                Vector3d positionVector = new Vector3d(position[0], position[1], position[2]);
+                return Optional.of(positionVector);
+            } catch (NumberFormatException e) {
+                EpicBoundaries.getLogger().warn("Invalid parameters provided for position");
+            }
+        }
+        return Optional.empty();
     }
 
     /**

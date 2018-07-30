@@ -8,5 +8,7 @@ public enum ActionEnum {
     TELEPORT,
     SET_OBJECTIVE,
     START_KILL_COUNT,
-    STOP_KILL_COUNT
+    STOP_KILL_COUNT,
+    CREATE_INSTANCE,
+    APPARATE
 }
