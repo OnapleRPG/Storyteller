@@ -43,7 +43,7 @@ public class MiscellaneousAction {
         try{
             String pos[] = position.split(" ");
             Vector3i vector3i = new Vector3i(Integer.parseInt(pos[0]),Integer.parseInt(pos[1]),Integer.parseInt(pos[2]));
-            Location<World> location = Storyteller.getWorld().getLocation(vector3i);
+            Location<World> location = source.getWorld().getLocation(vector3i);
             source.setLocation(location);
         } catch (Exception e){
             source.sendMessage(Text.builder("The position : "+ position + " is invalid.").color(TextColors.RED).build());
