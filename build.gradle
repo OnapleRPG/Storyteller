@@ -11,6 +11,8 @@ apply plugin: 'org.spongepowered.plugin'
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
+
+version = "1.0.0"
 publishing {
     publications {
         maven(MavenPublication) {
@@ -44,5 +46,6 @@ sonarqube {
         property "sonar.projectName", "Storyteller"
         property "sonar.organization", "ylinor-github"
         property "sonar.host.url", "https://sonarcloud.io/"
+
     }
 }
