@@ -38,6 +38,17 @@ public class BookGenerator {
     @Inject
     private InstanceAction instanceAction;
 
+    public void displayBook (Player player,String entityName) {
+        Optional<DialogBean> dialog = dialogAction.getDialogByTrigger(entityName,player);
+        if (dialog.isPresent()) {
+            BookView bookView = generateDialog(dialog.get());
+            player.sendBookView(bookView);
+        } else {
+            BookView bookView = generateDefaultBook(player);
+            player.sendBookView(bookView);
+        }
+    }
+
     /**
      * Create a bookview from a dialog
      * @param dialog Dialog data

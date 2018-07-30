@@ -2,11 +2,8 @@ package com.onaple.storyteller;
 
 
 import com.onaple.storyteller.action.DialogAction;
-import com.onaple.storyteller.commands.GetObjectiveCommand;
-import com.onaple.storyteller.commands.OpenBookCommand;
-import com.onaple.storyteller.commands.ReloadCommand;
+import com.onaple.storyteller.commands.*;
 import com.onaple.storyteller.data.access.ObjectiveDao;
-import com.onaple.storyteller.commands.SetObjectivesCommand;
 import com.onaple.storyteller.data.access.KillCountDao;
 import com.onaple.storyteller.data.beans.DialogBean;
 import com.onaple.storyteller.data.handlers.ConfigurationHandler;
@@ -157,10 +154,17 @@ public class Storyteller {
                 .executor(new SetObjectivesCommand())
                 .build();
 
+        CommandSpec triggerSpec = CommandSpec.builder()
+                .description(Text.of("Get player's actual objectives state"))
+                .arguments(GenericArguments.onlyOne(GenericArguments.string(Text.of("npcName"))))
+                .executor(new TriggerCommand())
+                .build();
+
         Sponge.getCommandManager().register(this, dialogSpec, "dialog");
         Sponge.getCommandManager().register(this, reloadSpec, "reload-storyteller");
         Sponge.getCommandManager().register(this, getObjectiveSpec, "get-objectives");
         Sponge.getCommandManager().register(this, setObjectiveSpec, "set-objective");
+        Sponge.getCommandManager().register(this, triggerSpec, "trigger-dialog");
         logger.info("STORYTELLER initialized.");
     }
 
@@ -175,17 +179,8 @@ public class Storyteller {
         Optional<Text> name = entity.get(Keys.DISPLAY_NAME);
         String entityType = entity.getType().getName();
         if (entityType.equals("villager") && name.isPresent()) {
-            Optional<DialogBean> dialog = dialogAction.getDialogByTrigger(name.get().toPlain(), player);
-            if (dialog.isPresent()) {
-                BookView bookView = bookGenerator.generateDialog(dialog.get());
-                player.sendBookView(bookView);
-                event.setCancelled(true);
-            } else {
-                BookView bookView = bookGenerator.generateDefaultBook(player);
-                player.sendBookView(bookView);
-                event.setCancelled(true);
-            }
-
+           bookGenerator.displayBook(player,name.get().toPlain());
+            event.setCancelled(true);
         }
     }
 
