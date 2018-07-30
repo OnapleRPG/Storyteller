@@ -156,7 +156,11 @@ public class Storyteller {
 
         CommandSpec triggerSpec = CommandSpec.builder()
                 .description(Text.of("Get player's actual objectives state"))
-                .arguments(GenericArguments.onlyOne(GenericArguments.string(Text.of("npcName"))))
+                .permission("storyteller.command.trigger")
+                .arguments(
+                        GenericArguments.onlyOne(GenericArguments.string(Text.of("npcName"))),
+                        GenericArguments.onlyOne(GenericArguments.player(Text.of("player")))
+                )
                 .executor(new TriggerCommand())
                 .build();
 

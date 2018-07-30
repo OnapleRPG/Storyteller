@@ -16,9 +16,10 @@ public class TriggerCommand implements CommandExecutor {
     public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
 
         Optional<String> name = args.getOne("npcName");
+        Optional<Player> playerOptional = args.getOne("player");
         if (name.isPresent()) {
-            if (src instanceof Player) {
-                Storyteller.getBookGenerator().displayBook((Player) src, name.get());
+            if (playerOptional.isPresent()) {
+                Storyteller.getBookGenerator().displayBook(playerOptional.get(), name.get());
                 return CommandResult.success();
             } else {
                 src.sendMessage(Text.of("source must be a player"));
