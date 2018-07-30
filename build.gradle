@@ -12,7 +12,15 @@ sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
 
-version = "1.0.0"
+versioning {
+    // required (number)
+    major = 1
+    minor = 3
+    patch = 0
+
+}
+
+version= versioning.name+'-'+versioning.build
 publishing {
     publications {
         maven(MavenPublication) {
