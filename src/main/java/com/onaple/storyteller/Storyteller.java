@@ -213,16 +213,4 @@ public class Storyteller {
             }
         }
     }
-
-    /**
-     * Get the current world
-     * @return the world
-     */
-    public static World getWorld(){
-        Optional<World> worldOptional = Sponge.getServer().getWorld("world");
-        if(worldOptional.isPresent()){
-            return worldOptional.get();
-        }
-        return null;
-    }
 }
