@@ -19,5 +19,4 @@ deploy:
   skip_cleanup: true
   script: rsync -r --delete-after --quiet $TRAVIS_BUILD_DIR/build/lib/* aventurier@onaple.fr:~/sponge-server-1.12/mods/
   on:
-    tags: true
     all_branches: true
