@@ -134,19 +134,18 @@ public class MiscellaneousAction {
         String[] itemStringSplitted = itemString.split(" ");
         Optional<ItemStack> optionalItem = Optional.empty();
         //  Getting item from string or integer, using Itemizer plugin
-        try {
-            int itemId = Integer.parseInt(itemStringSplitted[0]);
+            String itemId = itemStringSplitted[0];
             Optional<IItemService> optionalIItemService = Sponge.getServiceManager().provide(IItemService.class);
             if (optionalIItemService.isPresent()) {
                 IItemService iItemService = optionalIItemService.get();
                 optionalItem = iItemService.retrieve(itemId);
             }
-        } catch (NumberFormatException e) {
-            Optional<ItemType> optionalType = Sponge.getRegistry().getType(ItemType.class, itemStringSplitted[0]);
-            if (optionalType.isPresent()) {
-                optionalItem = Optional.of(ItemStack.builder().itemType(optionalType.get()).build());
+            if (!optionalItem.isPresent()) {
+                Optional<ItemType> optionalType = Sponge.getRegistry().getType(ItemType.class, itemStringSplitted[0]);
+                if (optionalType.isPresent()) {
+                    optionalItem = Optional.of(ItemStack.builder().itemType(optionalType.get()).build());
+                }
             }
-        }
         //  Taking multiple items into account
         int itemAmount = 1;
         if (itemStringSplitted.length >= 2) {
