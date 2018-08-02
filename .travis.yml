@@ -2,7 +2,7 @@ language: java
 jdk:
 - oraclejdk8
 before_install:
-- openssl aes-256-cbc -K $encrypted_28b7acc5ef9b_key -iv $encrypted_28b7acc5ef9b_iv
+- openssl aes-256-cbc -K $encrypted_182d1a38c631_key -iv $encrypted_182d1a38c631_iv
   -in deploy_rsa.enc -out deploy_rsa -d
 - eval "$(ssh-agent -s)"
 - chmod 600 /tmp/deploy_rsa
