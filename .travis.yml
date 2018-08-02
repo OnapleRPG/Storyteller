@@ -9,7 +9,6 @@ addons:
   ssh_known_hosts: onaple.fr
 script:
 - "./gradlew sonarqube"
-- "./gradlew build"
 before_deploy:
 - openssl aes-256-cbc -K $encrypted_182d1a38c631_key -iv $encrypted_182d1a38c631_iv
   -in deploy_rsa.enc -out /tmp/deploy_rsa -d
@@ -21,4 +20,5 @@ deploy:
   skip_cleanup: true
   script: rsync -r --delete-after --quiet $TRAVIS_BUILD_DIR/build/libs/* aventurier@onaple.fr:~/sponge-server-1.12/mods/
   on:
-    all_branches: true
+    tags: true
+    all_branches: false
