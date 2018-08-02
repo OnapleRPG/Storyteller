@@ -1,12 +1,9 @@
 language: java
 jdk:
 - oraclejdk8
+addons:
+  ssh_known_hosts: onaple.fr
 before_install:
-- openssl aes-256-cbc -K $encrypted_182d1a38c631_key -iv $encrypted_182d1a38c631_iv
-  -in deploy_rsa.enc -out /tmp/deploy_rsa -d
-- eval "$(ssh-agent -s)"
-- chmod 600 /tmp/deploy_rsa
-- ssh-add /tmp/deploy_rsa
 - gradle wrapper
 addons:
   sonarcloud:
@@ -14,6 +11,12 @@ addons:
 script:
 - "./gradlew sonarqube"
 - "./gradlew build"
+before_deploy:
+- openssl aes-256-cbc -K $encrypted_182d1a38c631_key -iv $encrypted_182d1a38c631_iv
+  -in deploy_rsa.enc -out /tmp/deploy_rsa -d
+- eval "$(ssh-agent -s)"
+- chmod 600 /tmp/deploy_rsa
+- ssh-add /tmp/deploy_rsa
 deploy:
 - provider: script
   skip_cleanup: true
