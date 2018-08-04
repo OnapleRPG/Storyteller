@@ -10,7 +10,7 @@ addons:
 script:
 - "./gradlew sonarqube"
 before_deploy:
-- openssl aes-256-cbc -K $encrypted_182d1a38c631_key -iv $encrypted_182d1a38c631_iv
+- openssl aes-256-cbc -K $encrypted_0d7303d7684b_key -iv $encrypted_0d7303d7684b_iv
   -in deploy_rsa.enc -out /tmp/deploy_rsa -d
 - eval "$(ssh-agent -s)"
 - chmod 600 /tmp/deploy_rsa
@@ -18,7 +18,7 @@ before_deploy:
 deploy:
 - provider: script
   skip_cleanup: true
-  script: rsync -r --delete-after --quiet $TRAVIS_BUILD_DIR/build/libs/* aventurier@onaple.fr:~/sponge-server-1.12/mods/
+  script: bash scripts/deploy.sh
   on:
     tags: true
     all_branches: false
