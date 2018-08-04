@@ -38,15 +38,13 @@ public class BookGenerator {
     @Inject
     private InstanceAction instanceAction;
 
-    public void displayBook (Player player,String entityName) {
-        Optional<DialogBean> dialog = dialogAction.getDialogByTrigger(entityName,player);
+    public boolean displayBook (Player player,String entityName) {
+        Optional<DialogBean> dialog = dialogAction.getDialogByTrigger(entityName, player);
         if (dialog.isPresent()) {
             BookView bookView = generateDialog(dialog.get());
             player.sendBookView(bookView);
-        } else {
-            BookView bookView = generateDefaultBook(player);
-            player.sendBookView(bookView);
         }
+        return dialog.isPresent();
     }
 
     /**
@@ -87,18 +85,6 @@ public class BookGenerator {
             }
         }
         return textBuilder.build();
-    }
-
-    /**
-     * Create the default BookView
-     * @param player Player to address to
-     * @return BookView to display
-     */
-    public BookView generateDefaultBook(Player player){
-        BookView.Builder bookviewBuilder = BookView.builder();
-        Text.Builder text = Text.builder("Greetings, " + player.getName() + ".");
-        bookviewBuilder.addPage(text.build());
-        return bookviewBuilder.build();
     }
 
     /**

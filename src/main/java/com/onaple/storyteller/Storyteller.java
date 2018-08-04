@@ -183,8 +183,9 @@ public class Storyteller {
         Optional<Text> name = entity.get(Keys.DISPLAY_NAME);
         String entityType = entity.getType().getName();
         if (entityType.equals("villager") && name.isPresent()) {
-           bookGenerator.displayBook(player,name.get().toPlain());
-            event.setCancelled(true);
+            if (bookGenerator.displayBook(player,name.get().toPlain())) {
+                event.setCancelled(true);
+            }
         }
     }
 
