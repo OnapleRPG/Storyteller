@@ -17,11 +17,11 @@ import org.spongepowered.api.text.Text;
 import javax.inject.Inject;
 import java.util.Optional;
 
-public class OpenBookCommand implements CommandExecutor {
+public class ReadDialogCommand implements CommandExecutor {
     @Inject
     DialogAction dialogAction;
 
-    public OpenBookCommand() {
+    public ReadDialogCommand() {
     }
 
     /**

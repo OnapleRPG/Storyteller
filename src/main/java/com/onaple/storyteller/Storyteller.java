@@ -5,7 +5,6 @@ import com.onaple.storyteller.action.DialogAction;
 import com.onaple.storyteller.commands.*;
 import com.onaple.storyteller.data.access.ObjectiveDao;
 import com.onaple.storyteller.data.access.KillCountDao;
-import com.onaple.storyteller.data.beans.DialogBean;
 import com.onaple.storyteller.data.handlers.ConfigurationHandler;
 import ninja.leaping.configurate.objectmapping.ObjectMappingException;
 import org.slf4j.Logger;
@@ -25,9 +24,7 @@ import org.spongepowered.api.event.filter.cause.Root;
 import org.spongepowered.api.event.game.state.GameInitializationEvent;
 import org.spongepowered.api.plugin.Plugin;
 import org.spongepowered.api.plugin.PluginContainer;
-import org.spongepowered.api.text.BookView;
 import org.spongepowered.api.text.Text;
-import org.spongepowered.api.world.World;
 
 import javax.inject.Inject;
 
@@ -112,7 +109,13 @@ public class Storyteller {
         return bookGenerator;
     }
     @Inject
-    private DialogAction dialogAction;
+    private void setDialogAction(DialogAction dialogAction) {
+        Storyteller.dialogAction = dialogAction;
+    }
+    public static DialogAction getDialogAction() {
+        return dialogAction;
+    }
+    private static DialogAction dialogAction;
 
     @Listener
     public void onServerStart(GameInitializationEvent event) {
@@ -125,18 +128,12 @@ public class Storyteller {
         objectiveDao.createTableIfNotExist();
         killCountDao.createTableIfNotExist();
 
-        CommandSpec dialogSpec = CommandSpec.builder()
-                .description(Text.of("Open book command"))
-                .permission("storyteller.command.read")
-                .arguments(GenericArguments.onlyOne(GenericArguments.string(Text.of("dialog"))),
-                        GenericArguments.optional(GenericArguments.player(Text.of("player"))))
-                .executor(new OpenBookCommand())
-                .build();
         CommandSpec reloadSpec = CommandSpec.builder()
                 .description(Text.of("Reload storyteller configuration"))
                 .permission("storyteller.command.reload")
                 .executor(new ReloadCommand())
                 .build();
+        Sponge.getCommandManager().register(this, reloadSpec, "reload-storyteller");
 
         CommandSpec getObjectiveSpec = CommandSpec.builder()
                 .description(Text.of("Get player's actual objectives state"))
@@ -144,31 +141,51 @@ public class Storyteller {
                 .arguments(GenericArguments.onlyOne(GenericArguments.player(Text.of("player"))))
                 .executor(new GetObjectiveCommand())
                 .build();
-
         CommandSpec setObjectiveSpec = CommandSpec.builder()
-                .description(Text.of("set player's objectives state"))
+                .description(Text.of("Set player's actual objectives state"))
                 .permission("storyteller.command.objectives")
                 .arguments(GenericArguments.onlyOne(GenericArguments.player(Text.of("player")))
                         ,GenericArguments.onlyOne(GenericArguments.string(Text.of("objective")))
                         ,GenericArguments.onlyOne(GenericArguments.integer(Text.of("value"))))
                 .executor(new SetObjectivesCommand())
                 .build();
+        CommandSpec objectiveSpec = CommandSpec.builder()
+                .description(Text.of("Get and set player objectives"))
+                .child(getObjectiveSpec, "get", "g")
+                .child(setObjectiveSpec, "set", "s")
+                .build();
+        Sponge.getCommandManager().register(this, objectiveSpec, "objective");
 
-        CommandSpec triggerSpec = CommandSpec.builder()
-                .description(Text.of("Get player's actual objectives state"))
-                .permission("storyteller.command.trigger")
+        CommandSpec readDialogSpec = CommandSpec.builder()
+                .description(Text.of("Read a dialog with given id"))
+                .permission("storyteller.command.dialog")
+                .arguments(GenericArguments.onlyOne(GenericArguments.string(Text.of("dialog"))),
+                        GenericArguments.optional(GenericArguments.player(Text.of("player"))))
+                .executor(new ReadDialogCommand())
+                .build();
+        CommandSpec triggerDialogSpec = CommandSpec.builder()
+                .description(Text.of("Trigger a dialog related to a NPC name"))
+                .permission("storyteller.command.dialog")
                 .arguments(
                         GenericArguments.onlyOne(GenericArguments.string(Text.of("npcName"))),
-                        GenericArguments.onlyOne(GenericArguments.player(Text.of("player")))
+                        GenericArguments.optional(GenericArguments.player(Text.of("player")))
                 )
-                .executor(new TriggerCommand())
+                .executor(new TriggerDialogCommand())
                 .build();
-
+        CommandSpec infoDialogSpec = CommandSpec.builder()
+                .description(Text.of("Get information about a trigger by id"))
+                .permission("storyteller.command.dialog")
+                .arguments(GenericArguments.onlyOne(GenericArguments.string(Text.of("dialog"))))
+                .executor(new InfoDialogCommand())
+                .build();
+        CommandSpec dialogSpec = CommandSpec.builder()
+                .description(Text.of("Read and see informations about dialogs"))
+                .child(readDialogSpec, "read", "r")
+                .child(triggerDialogSpec, "trigger", "t")
+                .child(infoDialogSpec, "info", "i")
+                .build();
         Sponge.getCommandManager().register(this, dialogSpec, "dialog");
-        Sponge.getCommandManager().register(this, reloadSpec, "reload-storyteller");
-        Sponge.getCommandManager().register(this, getObjectiveSpec, "get-objectives");
-        Sponge.getCommandManager().register(this, setObjectiveSpec, "set-objective");
-        Sponge.getCommandManager().register(this, triggerSpec, "trigger-dialog");
+
         logger.info("STORYTELLER initialized.");
     }
 
