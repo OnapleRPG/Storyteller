@@ -1,18 +1,15 @@
 package com.onaple.storyteller.commands;
 
 import com.onaple.storyteller.Storyteller;
-import com.onaple.storyteller.action.DialogAction;
 import com.onaple.storyteller.data.beans.DialogBean;
 import org.spongepowered.api.command.CommandException;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.command.args.CommandContext;
 import org.spongepowered.api.command.spec.CommandExecutor;
-import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.format.TextStyles;
 
-import javax.inject.Inject;
 import java.util.Optional;
 
 public class InfoDialogCommand implements CommandExecutor {
