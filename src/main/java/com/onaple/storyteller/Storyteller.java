@@ -35,7 +35,7 @@ import java.nio.file.Paths;
 import java.util.Optional;
 
 
-@Plugin(id = "storyteller", name = "Storyteller", version = "0.1.1")
+@Plugin(id = "storyteller", name = "Storyteller", version = "1.4")
 public class Storyteller {
     private static Storyteller instance;
     public static Storyteller getInstance() {
