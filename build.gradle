@@ -1,14 +1,26 @@
 plugins {
     id 'org.spongepowered.plugin' version '0.8.1'
     id "org.sonarqube" version "2.5"
+    id "eu.davidea.grabver" version "0.7.0"
 }
 
 apply plugin: 'java'
 apply plugin: 'maven-publish'
 apply plugin: 'org.spongepowered.plugin'
+apply plugin: 'eu.davidea.grabver'
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
+
+versioning {
+    // required (number)
+    major = 1
+    minor = 3
+    patch = 0
+
+}
+
+version= versioning.name+'-'+versioning.build
 
 publishing {
     publications {

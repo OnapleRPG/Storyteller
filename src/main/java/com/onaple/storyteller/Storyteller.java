@@ -189,12 +189,12 @@ public class Storyteller {
         logger.info("STORYTELLER initialized.");
     }
 
-    /**
+  /*  /**
      * Handle villager interaction for dialog
      * @param event Event fired
      * @param player Player who originated the event
      */
-    @Listener
+    /*@Listener
     public void onInteract(InteractEntityEvent.Secondary event, @Root Player player) {
         Entity entity = event.getTargetEntity();
         Optional<Text> name = entity.get(Keys.DISPLAY_NAME);
@@ -205,7 +205,7 @@ public class Storyteller {
             }
         }
     }
-
+*/
     /**
      * Handle entity death for kill counter
      * @param event Event fired
