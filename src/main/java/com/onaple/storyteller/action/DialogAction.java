@@ -41,16 +41,23 @@ public class DialogAction {
      * @return Optional dialog
      */
     public Optional<DialogBean> getDialogByTrigger(String trigger, Player player){
-        for(DialogBean dialog: configurationHandler.getDialogList()) {
+      return configurationHandler.getDialogList().stream().filter(
+                dialogBean -> dialogBean.getTrigger().contains(trigger)&&
+        objectiveAction.playerMatchesObjective(player,dialogBean.getObjective()) &&
+        miscellaneousAction.hasItems(player,dialogBean.getItemsNeeded())&&
+        killCountAction.playerMatchesKillCount(player,trigger,dialogBean.getKillCount())).findFirst();
+       /* for(DialogBean dialog: configurationHandler.getDialogList()) {
             if (dialog.getTrigger().contains(trigger)) {
                 String objective = dialog.getObjective();
                 String itemsNeeded = dialog.getItemsNeeded();
                 String killCountObjective = dialog.getKillCount();
-                if (objectiveAction.playerMatchesObjective(player, objective) && miscellaneousAction.hasItems(player, itemsNeeded) && killCountAction.playerMatchesKillCount(player, trigger, killCountObjective)) {
+                if (objectiveAction.playerMatchesObjective(player, objective) &&
+                        miscellaneousAction.hasItems(player, itemsNeeded) &&
+                        killCountAction.playerMatchesKillCount(player, trigger, killCountObjective)) {
                     return Optional.of(dialog);
                 }
-            }
-        }
-        return Optional.empty();
+            }6
+        }*/
+       // return Optional.empty();
     }
 }
