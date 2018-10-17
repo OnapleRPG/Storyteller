@@ -6,6 +6,8 @@ import com.onaple.storyteller.commands.*;
 import com.onaple.storyteller.data.access.ObjectiveDao;
 import com.onaple.storyteller.data.access.KillCountDao;
 import com.onaple.storyteller.data.handlers.ConfigurationHandler;
+import ninja.leaping.configurate.ConfigurationNode;
+import ninja.leaping.configurate.commented.CommentedConfigurationNode;
 import ninja.leaping.configurate.objectmapping.ObjectMappingException;
 import org.slf4j.Logger;
 import org.spongepowered.api.Sponge;
@@ -15,6 +17,7 @@ import org.spongepowered.api.command.spec.CommandSpec;
 import org.spongepowered.api.config.ConfigDir;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.entity.Entity;
+import org.spongepowered.api.entity.EntityType;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.cause.entity.damage.source.EntityDamageSource;
@@ -32,7 +35,9 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 
 @Plugin(id = "storyteller", name = "Storyteller", version = "1.4")
@@ -47,7 +52,7 @@ public class Storyteller {
     private Path configDir;
 
 
-
+    private GlobalConfiguration globalConfiguration;
 
     @Inject
     private ConfigurationHandler configurationHandler;
@@ -74,6 +79,34 @@ public class Storyteller {
                 }
             } else {
                 logger.warn("Plugin was not able to reference itself !");
+            }
+        }
+    }
+
+    private GlobalConfiguration  loadGlobalConfig(){
+        initGlobalConfig("/storyteller.conf");
+        CommentedConfigurationNode globalconf = configurationHandler.readGlobalConfiguration(configDir+"/storyteller.conf");
+        boolean interaction = globalconf.getNode("interaction").getBoolean();
+        List<EntityType> entities = globalconf.getNode("interactibleentity").getChildrenList().stream().map(o ->
+        Sponge.getRegistry().getType(EntityType.class, o.getString()).orElse(null)).collect(Collectors.toList());
+        return new GlobalConfiguration(interaction,entities);
+    }
+
+    private void initGlobalConfig(String path){
+        if (Files.notExists(Paths.get(configDir + path))) {
+            PluginContainer pluginInstance = Sponge.getPluginManager().getPlugin("storyteller").orElse(null);
+            if (pluginInstance!= null) {
+                Optional<Asset> itemsDefaultConfigFile = pluginInstance.getAsset(path);
+                Storyteller.getLogger().info("No config file set for " + path + " default config will be loaded");
+                if (itemsDefaultConfigFile.isPresent()) {
+                    try {
+                        itemsDefaultConfigFile.get().copyToDirectory(configDir);
+                    } catch (IOException e) {
+                        Storyteller.getLogger().error("Error while setting default configuration : " + e.getMessage());
+                    }
+                } else {
+                    Storyteller.getLogger().warn("Item default config not found");
+                }
             }
         }
     }
@@ -127,6 +160,10 @@ public class Storyteller {
         }
         objectiveDao.createTableIfNotExist();
         killCountDao.createTableIfNotExist();
+
+        globalConfiguration = loadGlobalConfig();
+
+        logger.info(String.valueOf(globalConfiguration.isInteraction()));
 
         CommandSpec reloadSpec = CommandSpec.builder()
                 .description(Text.of("Reload storyteller configuration"))
@@ -189,23 +226,29 @@ public class Storyteller {
         logger.info("STORYTELLER initialized.");
     }
 
-  /*  /**
+    /**
      * Handle villager interaction for dialog
      * @param event Event fired
      * @param player Player who originated the event
      */
-    /*@Listener
+    @Listener
     public void onInteract(InteractEntityEvent.Secondary event, @Root Player player) {
-        Entity entity = event.getTargetEntity();
-        Optional<Text> name = entity.get(Keys.DISPLAY_NAME);
-        String entityType = entity.getType().getName();
-        if (name.isPresent()) {
-            if (bookGenerator.displayBook(player,name.get().toPlain())) {
-                event.setCancelled(true);
-            }
-        }
+         if (!globalConfiguration.isInteraction()){
+             return;
+         }
+         Entity entity = event.getTargetEntity();
+         EntityType entityType = entity.getType();
+         if( globalConfiguration.getInteractibleEntities().isEmpty() || globalConfiguration.getInteractibleEntities().contains(entityType)){
+             Optional<Text> name = entity.get(Keys.DISPLAY_NAME);
+             if (name.isPresent()) {
+                 if (bookGenerator.displayBook(player,name.get().toPlain())) {
+                     event.setCancelled(true);
+                 }
+             }
+         }
+
     }
-*/
+
     /**
      * Handle entity death for kill counter
      * @param event Event fired
@@ -230,4 +273,5 @@ public class Storyteller {
             }
         }
     }
+
 }

@@ -18,6 +18,8 @@ import ninja.leaping.configurate.loader.ConfigurationLoader;
 import ninja.leaping.configurate.objectmapping.ObjectMappingException;
 import ninja.leaping.configurate.objectmapping.serialize.TypeSerializerCollection;
 import ninja.leaping.configurate.objectmapping.serialize.TypeSerializers;
+import org.spongepowered.api.asset.Asset;
+import org.spongepowered.api.plugin.PluginContainer;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -28,6 +30,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -106,5 +109,16 @@ public class ConfigurationHandler {
 
 
         return commentedNodes;
+    }
+
+    public CommentedConfigurationNode readGlobalConfiguration(String configName){
+        ConfigurationLoader<CommentedConfigurationNode> configLoader = HoconConfigurationLoader.builder().setPath(Paths.get(configName)).build();
+        CommentedConfigurationNode configNode = null;
+        try {
+            configNode = configLoader.load();
+        } catch (IOException e) {
+            Storyteller.getLogger().error("Error while loading configuration '" + configName + "' : " + e.getMessage());
+        }
+        return configNode;
     }
 }
