@@ -41,6 +41,14 @@ public class DialogAction {
      * @return Optional dialog
      */
     public Optional<DialogBean> getDialogByTrigger(String trigger, Player player){
+
+       return configurationHandler.getDialogList().stream().filter(dialog ->
+                dialog.getTrigger().contains(trigger) &&
+                        objectiveAction.playerMatchesObjective(player,dialog.getObjective()) &&
+                        miscellaneousAction.hasItems(player,dialog.getItemsNeeded()) &&
+                        killCountAction.playerMatchesKillCount(player,trigger,dialog.getKillCount())).findFirst();
+
+        /*
         for(DialogBean dialog: configurationHandler.getDialogList()) {
             if (dialog.getTrigger().contains(trigger)) {
                 String objective = dialog.getObjective();
@@ -51,6 +59,6 @@ public class DialogAction {
                 }
             }
         }
-        return Optional.empty();
+        return Optional.empty();*/
     }
 }

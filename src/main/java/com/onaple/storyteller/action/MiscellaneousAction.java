@@ -139,6 +139,8 @@ public class MiscellaneousAction {
             if (optionalIItemService.isPresent()) {
                 IItemService iItemService = optionalIItemService.get();
                 optionalItem = iItemService.retrieve(itemId);
+            } else {
+                Storyteller.getLogger().warn("Itemizer service reference not found");
             }
             if (!optionalItem.isPresent()) {
                 Optional<ItemType> optionalType = Sponge.getRegistry().getType(ItemType.class, itemStringSplitted[0]);
