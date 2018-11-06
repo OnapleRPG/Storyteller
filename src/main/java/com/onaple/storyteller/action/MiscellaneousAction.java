@@ -1,6 +1,7 @@
 package com.onaple.storyteller.action;
 
 import com.flowpowered.math.vector.Vector3i;
+
 import com.onaple.storyteller.Storyteller;
 import com.onaple.itemizer.service.IItemService;
 import org.spongepowered.api.Sponge;
@@ -88,7 +89,9 @@ public class MiscellaneousAction {
      * @param itemString Id or name of the item, with optional quantity
      */
     public boolean hasItem(Player player, String itemString) {
-        Optional<ItemStack> optionalItem = convertStringToItemStack(itemString);
+
+        String itemStringTrim = itemString.trim().replaceFirst("!","");
+        Optional<ItemStack> optionalItem = convertStringToItemStack(itemStringTrim);
         if (optionalItem.isPresent()) {
             ItemStack item = optionalItem.get();
             return player.getInventory().query(QueryOperationTypes.INVENTORY_TYPE.of(InventoryRow.class)).contains(item);
@@ -114,7 +117,11 @@ public class MiscellaneousAction {
                 Pattern pattern = Pattern.compile("([a-zA-Z0-9_$]+)( (\\d))?");
                 Matcher matcher = pattern.matcher(andCondition);
                 if (matcher.find()) {
-                    verified = hasItem(player, andCondition);
+                  if(andCondition.trim().charAt(0) == '!'){
+                      verified = !hasItem(player, andCondition);
+                  }else {
+                      verified = hasItem(player, andCondition);
+                  }
                 } else if (!condition.equals("")) {
                     Storyteller.getLogger().warn("Wrong item needed argument : \"" + condition + "\"");
                 }

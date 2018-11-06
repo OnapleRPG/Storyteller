@@ -1,17 +1,16 @@
 package com.onaple.storyteller.data.beans;
 
-import java.util.ArrayList;
-import java.util.List;
 
+import com.onaple.storyteller.data.ActionEnum;
 
 public class ActionBean {
-    private String name;
+    private ActionEnum name;
     private String arg;
 
-    public String getName() {
+    public ActionEnum getName() {
         return name;
     }
-    public void setName(String name) {
+    public void setName(ActionEnum name) {
         this.name = name;
     }
 
@@ -25,7 +24,7 @@ public class ActionBean {
     public ActionBean() {
 
     }
-    public ActionBean(String name, String arg) {
+    public ActionBean(ActionEnum name, String arg) {
         this.name = name;
         this.arg = arg;
     }

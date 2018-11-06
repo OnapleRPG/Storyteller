@@ -27,6 +27,12 @@ Permission : *storyteller.command.objectives*
 Permission : *storyteller.command.objectives*
 
 ## Configuration
+
+###Global
+In the *storyteller.conf* file, there is the global plugin configuration. you can change :
+* the *interaction* is if entities are interactible. if it's `true`, entities can trigger dialogs else you must use command to trigger dialogs
+* A list of intractable entities. if it's empty all entity are enabled.
+###Dialogs
 The dialogs need to be configured first, using JSON files located in the *config/storyteller/* folder, like the following example.  
 * The **id** number is used to reference a dialog from an other one or from a command call
 * The **trigger** defines a list of villager names that will trigger the dialog when the player right click them

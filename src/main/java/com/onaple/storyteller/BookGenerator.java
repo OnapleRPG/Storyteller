@@ -104,18 +104,7 @@ public class BookGenerator {
                 textBuilder.color(textColor.get());
             }
         }
-        // Iterate button actions
-        List<ActionBean> actions = buttonBean.getActions();
-        Map<ActionEnum, String> effectiveActions = new HashMap<>();
-        for(ActionBean action: actions) {
-            String[] actionNameSplitted = action.getName().split(" ", 2);
-            if (EnumUtils.isValidEnum(ActionEnum.class, action.getName())) {
-                effectiveActions.put(ActionEnum.valueOf(action.getName()), action.getArg());
-            } else if (EnumUtils.isValidEnum(ActionEnum.class, actionNameSplitted[0]) && actionNameSplitted.length > 1) {
-                effectiveActions.put(ActionEnum.valueOf(actionNameSplitted[0]), actionNameSplitted[1]);
-            }
-        }
-        // Concatenate NPC names
+              // Concatenate NPC names
         String npcNamesString = "";
         for (String npcName : npcNames) {
             npcNamesString += npcName;
@@ -123,34 +112,34 @@ public class BookGenerator {
         final String npcNameStringFinal = npcNamesString;
         // Set button action
         textBuilder.onClick(TextActions.executeCallback(commandSource-> {
-            for (Map.Entry<ActionEnum, String> effectiveAction : effectiveActions.entrySet()) {
-                switch (effectiveAction.getKey()) {
+            for (ActionBean action : buttonBean.getActions()) {
+                switch (action.getName()) {
                     case OPEN_DIALOG:
-                        changeDialog((Player)commandSource,effectiveAction.getValue());
+                        changeDialog((Player)commandSource,action.getArg());
                         break;
                     case EXECUTE_COMMAND:
-                        miscellaneousAction.executeCommand((Player)commandSource, effectiveAction.getValue());
+                        miscellaneousAction.executeCommand((Player)commandSource,action.getArg());
                         break;
                     case TELEPORT:
-                        miscellaneousAction.teleport((Player)commandSource, effectiveAction.getValue());
+                        miscellaneousAction.teleport((Player)commandSource, action.getArg());
                         break;
                     case GIVE_ITEM:
-                        miscellaneousAction.giveItem((Player)commandSource, effectiveAction.getValue());
+                        miscellaneousAction.giveItem((Player)commandSource, action.getArg());
                         break;
                     case REMOVE_ITEM:
-                        miscellaneousAction.removeItem((Player)commandSource, effectiveAction.getValue());
+                        miscellaneousAction.removeItem((Player)commandSource, action.getArg());
                         break;
                     case SET_OBJECTIVE:
-                        objectiveAction.setObjective((Player)commandSource, effectiveAction.getValue());
+                        objectiveAction.setObjective((Player)commandSource, action.getArg());
                         break;
                     case START_KILL_COUNT:
-                        killCountAction.startKillCount((Player)commandSource, npcNameStringFinal, effectiveAction.getValue());
+                        killCountAction.startKillCount((Player)commandSource, npcNameStringFinal, action.getArg());
                         break;
                     case STOP_KILL_COUNT:
-                        killCountAction.stopKillCount((Player)commandSource, npcNameStringFinal, effectiveAction.getValue());
+                        killCountAction.stopKillCount((Player)commandSource, npcNameStringFinal, action.getArg());
                         break;
                     case CREATE_INSTANCE:
-                        String[] createInstanceParameters = effectiveAction.getValue().split(" ");
+                        String[] createInstanceParameters = action.getArg().split(" ");
                         if (createInstanceParameters.length >= 4) {
                             String[] positionValues = Arrays.copyOfRange(createInstanceParameters, 1, createInstanceParameters.length);
                             convertStringArrayToVector3d(positionValues).ifPresent(position -> {
@@ -159,7 +148,7 @@ public class BookGenerator {
                         }
                         break;
                     case APPARATE:
-                        String[] apparateParameters = effectiveAction.getValue().split(" ");
+                        String[] apparateParameters = action.getArg().split(" ");
                         if (apparateParameters.length >= 4) {
                             String[] positionValues = Arrays.copyOfRange(apparateParameters, 1, apparateParameters.length);
                             convertStringArrayToVector3d(positionValues).ifPresent(position -> {
