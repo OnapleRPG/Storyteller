@@ -17,22 +17,27 @@ The plugin is designed to work with Sponge API 7.0.0 (Minecraft 1.12). To instal
 into the mods folder on your server. A default configuration will be created in the *config/storyteller* folder when you first launch the server with the plugin.
 
 ## Commands
-* **/dialog *x* [*player*]** : Open a configured dialog to a given player or the command executor, *x* being the dialog identifier.  
-Permission : *storyteller.command.read*
-* **/reload-storyteller** : Reload the storyteller configuration files.  
-Permission : *storyteller.command.reload*
-* **/get-objectives *player*** : Returns storyteller associated player objectives in chat.  
-Permission : *storyteller.command.objectives*
-* **/set-objective *player* *objective* *value*** : Set the current player objective value for a given objective to a given number.  
-Permission : *storyteller.command.objectives*
+
+* `/dialog read|r <index> [player] ` : Open a configured dialog to a given player or the command executor, *index* being the dialog identifier.
+_Permission : `storyteller.command.dialog`_
+* `/dialog info|i <index>` : Get informations about the dialog with the corresponding id, *index* being the dialog identifier.  
+_Permission : `storyteller.command.dialog`_
+* `/dialog trigger|t <npcName> [player]` : Load the current player dialog for the npc according to conditions, *npcName* being the npc name, and a given player or the command executor.  
+_Permission : `storyteller.command.dialog`_
+* `/reload-storyteller` : Reload the storyteller configuration files.  
+_Permission : `storyteller.command.reload`_
+* `/get-objectives <player>` : Returns storyteller associated player objectives in chat.  
+_Permission : `storyteller.command.objectives`_
+* `/set-objective <player> <objective> <value>` : Set the current player objective value for a given objective to a given number.  
+_Permission : `storyteller.command.objectives`_
 
 ## Configuration
 
-###Global
+### Global
 In the *storyteller.conf* file, there is the global plugin configuration. you can change :
 * the *interaction* is if entities are interactible. if it's `true`, entities can trigger dialogs else you must use command to trigger dialogs
 * A list of intractable entities. if it's empty all entity are enabled.
-###Dialogs
+### Dialogs
 The dialogs need to be configured first, using JSON files located in the *config/storyteller/* folder, like the following example.  
 * The **id** number is used to reference a dialog from an other one or from a command call
 * The **trigger** defines a list of villager names that will trigger the dialog when the player right click them
