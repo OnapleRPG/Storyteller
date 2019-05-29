@@ -1,11 +1,15 @@
 package com.onaple.storyteller.action;
 
+import com.onaple.itemizer.Itemizer;
+import com.onaple.storyteller.data.beans.Condition;
 import com.onaple.storyteller.data.beans.DialogBean;
+import com.onaple.storyteller.data.beans.ItemCondition;
 import com.onaple.storyteller.data.handlers.ConfigurationHandler;
 import org.spongepowered.api.entity.living.player.Player;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import javax.script.ScriptException;
 import java.util.Optional;
 
 @Singleton
@@ -41,11 +45,21 @@ public class DialogAction {
      * @return Optional dialog
      */
     public Optional<DialogBean> getDialogByTrigger(String trigger, Player player){
-        return configurationHandler.getDialogList().stream().filter(dialog ->
-                dialog.getTrigger().contains(trigger) &&
-                        objectiveAction.playerMatchesObjective(player,dialog.getObjective()) &&
-                        miscellaneousAction.hasItems(player,dialog.getItemsNeeded()) &&
-                        killCountAction.playerMatchesKillCount(player,trigger,dialog.getKillCount())).findFirst();
+          return configurationHandler.getDialogList().stream().filter(dialog ->
+              hasConditions(player, dialog, trigger)
+          ).findFirst();
+        }
 
+    private boolean hasConditions(Player player, DialogBean dialog,String trigger){
+        Condition itemCondition = new ItemCondition();
+    try {
+           return dialog.getTrigger().contains(trigger) &&
+                   objectiveAction.playerMatchesObjective(player, dialog.getObjective()) &&
+                   itemCondition.test(player, dialog.getItemsNeeded()) &&
+                   killCountAction.playerMatchesKillCount(player, trigger, dialog.getKillCount());
+       } catch (ScriptException | NoSuchMethodException e) {
+        Itemizer.getLogger().error("error while reading script condition",e);
+       }
+        return false;
     }
 }

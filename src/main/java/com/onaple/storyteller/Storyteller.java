@@ -84,7 +84,7 @@ public class Storyteller {
     }
 
     private GlobalConfiguration  loadGlobalConfig(){
-        initGlobalConfig("/storyteller.conf");
+        initGlobalConfig("storyteller.conf");
         CommentedConfigurationNode globalconf = configurationHandler.readGlobalConfiguration(configDir+"/storyteller.conf");
         boolean interaction = globalconf.getNode("interaction").getBoolean();
         List<EntityType> entities = globalconf.getNode("interactibleentity").getChildrenList().stream().map(o ->
@@ -93,7 +93,7 @@ public class Storyteller {
     }
 
     private void initGlobalConfig(String path){
-        if (Files.notExists(Paths.get(configDir + path))) {
+        if (Files.notExists(configDir.resolve(path))) {
             PluginContainer pluginInstance = Sponge.getPluginManager().getPlugin("storyteller").orElse(null);
             if (pluginInstance!= null) {
                 Optional<Asset> itemsDefaultConfigFile = pluginInstance.getAsset(path);
