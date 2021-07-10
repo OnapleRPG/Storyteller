@@ -1,10 +1,8 @@
 .gradle
 .idea
 build
-gradle
 gradlew.bat
 *.iml
-gradlew
 gradlew.bat
 gradle.properties
 version.properties
