@@ -53,7 +53,7 @@ public class KillCountBean {
         return monsterName;
     }
 
-    public void setMonsterName(String objective) {
+    public void setMonsterName(String monsterName) {
         this.monsterName = monsterName;
     }
 
