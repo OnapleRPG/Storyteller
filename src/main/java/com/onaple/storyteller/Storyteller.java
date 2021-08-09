@@ -58,8 +58,8 @@ public class Storyteller {
     private ConfigurationHandler configurationHandler;
 
     public int loadConfig() throws ObjectMappingException {
-          initDefaultConfig();
-          return configurationHandler.readDialogsConfiguration(configurationHandler.loadConfiguration(configDir + "/storyteller/"));
+        initDefaultConfig();
+        return configurationHandler.readDialogsConfiguration(configurationHandler.loadConfiguration(configDir + "/storyteller/"));
     }
 
     private void initDefaultConfig(){
@@ -67,7 +67,7 @@ public class Storyteller {
             Optional<PluginContainer> pluginContainer = Sponge.getPluginManager().getPlugin("storyteller");
             if (pluginContainer.isPresent()) {
                 Optional<Asset> dialogDefaultConfigFile = pluginContainer.get().getAsset("example.conf");
-                getLogger().info("No dialogs files found in /config/storryteller, a default config will be loaded");
+                getLogger().info("No dialogs files found in /config/storyteller, a default config will be loaded");
                 if (dialogDefaultConfigFile.isPresent()) {
                     try {
                         dialogDefaultConfigFile.get().copyToDirectory(Paths.get(configDir+"/storyteller/"));
@@ -83,7 +83,7 @@ public class Storyteller {
         }
     }
 
-    private GlobalConfiguration  loadGlobalConfig(){
+    private GlobalConfiguration loadGlobalConfig(){
         initGlobalConfig("/storyteller.conf");
         CommentedConfigurationNode globalconf = configurationHandler.readGlobalConfiguration(configDir+"/storyteller.conf");
         boolean interaction = globalconf.getNode("interaction").getBoolean();
@@ -96,8 +96,8 @@ public class Storyteller {
         if (Files.notExists(Paths.get(configDir + path))) {
             PluginContainer pluginInstance = Sponge.getPluginManager().getPlugin("storyteller").orElse(null);
             if (pluginInstance!= null) {
-                Optional<Asset> itemsDefaultConfigFile = pluginInstance.getAsset(path);
                 Storyteller.getLogger().info("No config file set for " + path + " default config will be loaded");
+                Optional<Asset> itemsDefaultConfigFile = pluginInstance.getAsset("storyteller.conf");
                 if (itemsDefaultConfigFile.isPresent()) {
                     try {
                         itemsDefaultConfigFile.get().copyToDirectory(configDir);
@@ -153,17 +153,14 @@ public class Storyteller {
     @Listener
     public void onServerStart(GameInitializationEvent event) {
         instance = this;
+        globalConfiguration = loadGlobalConfig();
         try {
-          getLogger().info("Dialogs configuration loaded. " +loadConfig()+ " dialogs loaded");
+            getLogger().info("Dialogs configuration loaded with " + loadConfig() + " dialogs.");
         } catch (ObjectMappingException e) {
             logger.error("Error while loading dialogs configuration : " + e.getMessage());
         }
         objectiveDao.createTableIfNotExist();
         killCountDao.createTableIfNotExist();
-
-        globalConfiguration = loadGlobalConfig();
-
-        logger.info(String.valueOf(globalConfiguration.isInteraction()));
 
         CommandSpec reloadSpec = CommandSpec.builder()
                 .description(Text.of("Reload storyteller configuration"))
@@ -233,19 +230,19 @@ public class Storyteller {
      */
     @Listener
     public void onInteract(InteractEntityEvent.Secondary event, @Root Player player) {
-         if (!globalConfiguration.isInteraction()){
-             return;
-         }
-         Entity entity = event.getTargetEntity();
-         EntityType entityType = entity.getType();
-         if( globalConfiguration.getInteractibleEntities().isEmpty() || globalConfiguration.getInteractibleEntities().contains(entityType)){
-             Optional<Text> name = entity.get(Keys.DISPLAY_NAME);
-             if (name.isPresent()) {
-                 if (bookGenerator.displayBook(player,name.get().toPlain())) {
-                     event.setCancelled(true);
-                 }
-             }
-         }
+        if (!globalConfiguration.isInteraction()){
+            return;
+        }
+        Entity entity = event.getTargetEntity();
+        EntityType entityType = entity.getType();
+        if( globalConfiguration.getInteractibleEntities().isEmpty() || globalConfiguration.getInteractibleEntities().contains(entityType)){
+            Optional<Text> name = entity.get(Keys.DISPLAY_NAME);
+            if (name.isPresent()) {
+                if (bookGenerator.displayBook(player,name.get().toPlain())) {
+                    event.setCancelled(true);
+                }
+            }
+        }
 
     }
 
