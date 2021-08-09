@@ -1,20 +1,17 @@
 # Storyteller ![Github Action](https://github.com/OnapleRPG/Storyteller/actions/workflows/gradle.yml/badge.svg) ![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=com.onaple%3AStoryteller&metric=reliability_rating) [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0) [![sponge version](https://img.shields.io/badge/sponge-7.2.0-blue.svg)](https://www.spongepowered.org/) 
 
-## Introduction  
-Storyteller is a Sponge plugin designed to send messages to players through the book interface. Write stories and 
-ambiance your world with fully configurable books. Set the *text*, the *color*, the *pages*, and attach the book to 
-several *game events*. Books support *buttons* with callback to design more complex and interactive dialogs.
-Note that it replaces the default villager's behavior.
+Storyteller is a Sponge Minecraft plugin designed to implement a quest system. Write stories with objectives and add active lore to your world.  
+Set the *text*, the *color*, the *pages*, and attach your book to several *game events*. Books support *buttons* with callback to design more complex and interactive dialogs.  
 
-### Functionnalities
-* Callable by Commands 
-* No code, only configuration
-* Attachable to villagers
-* Clickable Text
+## Installation
 
-## Get started
-The plugin is designed to work with Sponge API 7.0.0 (Minecraft 1.12). To install it, just drag and drop the jar file 
-into the mods folder on your server. A default configuration will be created in the *config/storyteller* folder when you first launch the server with the plugin.
+This plugin needs a sponge server 1.12. Download our [latest release](https://github.com/OnapleRPG/Storyteller/releases) and copy it into your server's `mods/` folder. Then restart your server.  
+Check that a `/config/storyteller.conf` file and `/config/storyteller` folder exist to verify if default configuration was properly copied, and you should notice server logs mentionning the plugin loaded.  
+
+## Getting started
+
+The plugin uses its configuration to create a book interaction with some entity. Using the default generated config, spawn a villager named "*Steve the villager*" to try out the config. You should have a book interface open up when interacting with him.  
+You can use it with commands as well, on yourself or other players.  
 
 ## Commands
 
@@ -26,102 +23,41 @@ _Permission : `storyteller.command.dialog`_
 _Permission : `storyteller.command.dialog`_
 * `/reload-storyteller` : Reload the storyteller configuration files.  
 _Permission : `storyteller.command.reload`_
-* `/get-objectives <player>` : Returns storyteller associated player objectives in chat.  
+* `/dialog objective|o get <player>` : Returns associated player objectives in chat.  
 _Permission : `storyteller.command.objectives`_
-* `/set-objective <player> <objective> <value>` : Set the current player objective value for a given objective to a given number.  
+* `/dialog objective|o set <player> <objective> <value>` : Set the current player objective value for a given objective to a given number.  
 _Permission : `storyteller.command.objectives`_
 
 ## Configuration
 
-### Global
+### Global config
+
 In the *storyteller.conf* file, there is the global plugin configuration. you can change :
-* the *interaction* is if entities are interactible. if it's `true`, entities can trigger dialogs else you must use command to trigger dialogs
-* A list of intractable entities. if it's empty all entity are enabled.
+* **interaction**: allow entities to trigger the storyteller dialog system, if appliable. If `true`, entities can trigger dialogs when their name matches a trigger; else you must use commands to trigger dialogs.
+* **interactibleentity**: List of entity types that can trigger dialogs. If empty, all entity are enabled.
+
 ### Dialogs
-The dialogs need to be configured first, using JSON files located in the *config/storyteller/* folder, like the following example.  
-* The **id** number is used to reference a dialog from an other one or from a command call
-* The **trigger** defines a list of villager names that will trigger the dialog when the player right click them
-* The optional **objective** field is used to map custom objectives that act as variables being edited as a result of some dialog action
-* The optional **items** field is a string matching an item name (or its id if itemizer is present) and the amount required.
-* The **pages** contains the one or many pages a dialog contains
+The dialogs need to be configured first, using JSON files located in the *config/storyteller/* folder. [The default configuration](./src/main/resources/assets/storyteller/example.conf) includes a basic quest that illustrates the system and works as is.   
+* The **id** number/string is used to reference a dialog from an other one or from a command call. When multiple dialogs match the conditions, the first id in alphabetic order will be chosen.
+* The optional **trigger** defines a list of entity names that will trigger the dialog when the player right click them, if the global settings allow it.
+* The optional **objective** field is used to add prerequisites on custom variables
+* The optional **items** field is an item requirement with string matching the item name (or its id, if itemizer is present) and the amount required.
+* The **pages** is an array containing one or many pages to display within the dialog
     * The **text** is the one going to be displayed to the player on this page.
-    * The **buttons** is a list of clickable text buttons that are going to trigger some event
-        * The **text** is what will be displayed and clickable
-        * The array **actions** list the actions the button will execute. Must match one of the available actions, being : [OPEN_DIALOG|TELEPORT|GIVE_ITEM|REMOVE_ITEM|SET_OBJECTIVE]
-```
-1 = {
-    trigger: ["Steve the villager"]
-    objective: "steve_asking_wood==0"
-    pages: [
-        {
-            text: "Hello ! Would you kindly bring me some wood please ?"
-            buttons: [
-                {
-                    text : "&0> I will bring you wood !"
-                    actions : ["SET_OBJECTIVE steve_asking_wood=1"]
-                }
-            ]
-      }
-    ]
-}
-
-2 = {
-    trigger: ["Steve the villager"]
-    objective : "steve_asking_wood==1"
-    items: "minecraft:log 5"
-    pages: [
-        {
-            text : "This wood looks beautiful on you !"
-            buttons: [
-            {
-                text : "&2Here, take my wood"
-                actions : ["SET_OBJECTIVE steve_asking_wood=2", "REMOVE_ITEM minecraft:log 5", "START_KILL_COUNT Zombie"]
-            }
-            ]
-        }
-    ]
-}
-
-3 = {
-    trigger: ["Steve the villager"]
-    objective : "steve_asking_wood==2"
-    killcount: "Zombie>=5"
-    pages: [
-        {
-            text : "I'm grateful for the wood, but I'd also like you to kill some zombies.",
-            buttons: [
-                {
-                    text : "&4> I killed some &6zombies &4!",
-                    actions : ["SET_OBJECTIVE steve_asking_wood=3"]
-                }
-            ]
-        }
-    ]
-}
-
-4 = {
-    trigger: ["Steve the villager"]
-    objective: "steve_asking_wood==2"
-    pages: [
-        {
-            text: "I'm grateful for the wood, but I'd also like you to kill 5 zombies."
-            buttons: [
-                {
-                    text: "> Alright then"
-                }
-            ]
-        }
-    ]
-}
-```
-Here is the list of the available button actions and there arguments (separated with spaces) :  
+    * The **buttons** is a list of clickable text buttons that cantrigger some event
+        * The **text** will be the clickable text. You can use minecraft color codes, like &2
+        * The optional array **actions** lists the actions the button will execute. Must match one of the available actions, available below.
+  
+Here is the list of the available button actions and their arguments (separated with spaces) :  
 - **OPEN_DIALOG** : Open the dialog with the given *id* (given as argument)
 - **EXECUTE_COMMAND** : Execute the *command* given as argument
-- **GIVE_ITEM** : Give an item to the player. Fill with an item name or itemizer id, followed by a space and the amount you want to give
-- **REMOVE_ITEM** : Same as above, but removing from the player's inventory
+- **GIVE_ITEM** : Give an *item* to the player. Fill with an item type or itemizer id, followed by the *amount* you want to give
+- **REMOVE_ITEM** : Same as above, but removing the *item* from the player's inventory, with an *amount*
 - **TELEPORT** : Teleport to the given *location*. Use X Y Z separated with space
 - **SET_OBJECTIVE** : Edit an *objective*. You can use the name you want and the operators *=*, *+=*, *-=* (ex : dialog_count+=1)
-- **START_KILL_COUNT** : Start a counter for a given NPC and a given monster. Takes a monster name or type as argument.
-- **STOP_KILL_COUNT** : Stop a counter for cleaning. Takes a monster name as argument, and use the NPC name (trigger).
+- **START_KILL_COUNT** : Start a counter for a given NPC and a given monster. Takes a monster name or type as argument (case sensitive).
+- **STOP_KILL_COUNT** : Stop a counter for cleaning. Takes a monster name as argument, and use the NPC name.
 - **CREATE_INSTANCE** : Create an instance from a world and teleport the player into it. Takes the world to copy as first argument, then three numbers for X, Y and Z position to teleport the player to (*Only if EpicBoundaries plugin is available*).
 - **APPARATE** : Teleport the player to another world. Takes the world name as first argument, then the X, Y and Z position (*Only if EpicBoundaries plugin is available*)
+
+>*All "objective" and "kill_count" variables are linked to the player name and entity name: you will have the same progression with another entity with the same name*  
