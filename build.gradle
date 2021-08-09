@@ -21,7 +21,7 @@ sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
 group = 'com.onaple'
-version = "1.4.0" // Change plugin version here
+version = "1.4.1" // Change plugin version here
 
 repositories {
     mavenCentral()
