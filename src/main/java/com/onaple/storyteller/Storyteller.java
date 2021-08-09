@@ -170,13 +170,13 @@ public class Storyteller {
         Sponge.getCommandManager().register(this, reloadSpec, "reload-storyteller");
 
         CommandSpec getObjectiveSpec = CommandSpec.builder()
-                .description(Text.of("Get player's actual objectives state"))
+                .description(Text.of("Get player's actual storyteller objectives state"))
                 .permission("storyteller.command.objectives")
                 .arguments(GenericArguments.onlyOne(GenericArguments.player(Text.of("player"))))
                 .executor(new GetObjectiveCommand())
                 .build();
         CommandSpec setObjectiveSpec = CommandSpec.builder()
-                .description(Text.of("Set player's actual objectives state"))
+                .description(Text.of("Set player's actual storyteller objectives state"))
                 .permission("storyteller.command.objectives")
                 .arguments(GenericArguments.onlyOne(GenericArguments.player(Text.of("player")))
                         ,GenericArguments.onlyOne(GenericArguments.string(Text.of("objective")))
@@ -188,7 +188,6 @@ public class Storyteller {
                 .child(getObjectiveSpec, "get", "g")
                 .child(setObjectiveSpec, "set", "s")
                 .build();
-        Sponge.getCommandManager().register(this, objectiveSpec, "objective");
 
         CommandSpec readDialogSpec = CommandSpec.builder()
                 .description(Text.of("Read a dialog with given id"))
@@ -217,6 +216,7 @@ public class Storyteller {
                 .child(readDialogSpec, "read", "r")
                 .child(triggerDialogSpec, "trigger", "t")
                 .child(infoDialogSpec, "info", "i")
+                .child(objectiveSpec, "objective", "o")
                 .build();
         Sponge.getCommandManager().register(this, dialogSpec, "dialog");
 
